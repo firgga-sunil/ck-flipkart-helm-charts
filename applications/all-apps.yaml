@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: "git@github.com:codekarma-tech/ck-helm-charts.git"
+    repoURL: "git@github.com:firgga-sunil/ck-flipkart-helm-charts.git"
     targetRevision: main
     path: "./charts/storage-classes"
     helm:
@@ -30,7 +30,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: "git@github.com:codekarma-tech/ck-helm-charts.git"
+    repoURL: "git@github.com:firgga-sunil/ck-flipkart-helm-charts.git"
     targetRevision: main
     path: "./charts/ck-graph-mcp-server"
     helm:
@@ -54,7 +54,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: "git@github.com:codekarma-tech/ck-helm-charts.git"
+    repoURL: "git@github.com:firgga-sunil/ck-flipkart-helm-charts.git"
     targetRevision: main
     path: "./charts/ck-mcp"
     helm:
@@ -78,7 +78,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: "git@github.com:codekarma-tech/ck-helm-charts.git"
+    repoURL: "git@github.com:firgga-sunil/ck-flipkart-helm-charts.git"
     targetRevision: main
     path: "./charts/karma-lens"
     helm:
@@ -102,7 +102,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: "git@github.com:codekarma-tech/ck-helm-charts.git"
+    repoURL: "git@github.com:firgga-sunil/ck-flipkart-helm-charts.git"
     targetRevision: main
     path: "./charts/nexus/ck-nexus-charts"
     helm:
@@ -128,7 +128,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: "git@github.com:codekarma-tech/ck-helm-charts.git"
+    repoURL: "git@github.com:firgga-sunil/ck-flipkart-helm-charts.git"
     targetRevision: main
     path: "./charts/nexus/db/postgres"
     helm:
@@ -152,7 +152,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: "git@github.com:codekarma-tech/ck-helm-charts.git"
+    repoURL: "git@github.com:firgga-sunil/ck-flipkart-helm-charts.git"
     targetRevision: main
     path: "./charts/nexus/prometheus"
     helm:
@@ -178,7 +178,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: "git@github.com:codekarma-tech/ck-helm-charts.git"
+    repoURL: "git@github.com:firgga-sunil/ck-flipkart-helm-charts.git"
     targetRevision: main
     path: "./charts/nginx"
     helm:
