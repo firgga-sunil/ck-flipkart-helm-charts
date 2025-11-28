@@ -1,3 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: storage-classes
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: "git@github.com:codekarma-tech/ck-helm-charts.git"
+    targetRevision: main
+    path: "./charts/storage-classes"
+    helm:
+      valueFiles:
+      - values-gcp.yaml
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: kube-system
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
@@ -15,7 +38,7 @@ spec:
       - values.yaml
   destination:
     server: "https://kubernetes.default.svc"
-    namespace: ck-graph-mcp-server
+    namespace: codekarma
   syncPolicy:
     automated:
       prune: true
@@ -39,7 +62,7 @@ spec:
       - values.yaml
   destination:
     server: "https://kubernetes.default.svc"
-    namespace: ck-mcp
+    namespace: codekarma
   syncPolicy:
     automated:
       prune: true
@@ -63,7 +86,7 @@ spec:
       - values-prod.yaml
   destination:
     server: "https://kubernetes.default.svc"
-    namespace: karma-lens
+    namespace: codekarma
   syncPolicy:
     automated:
       prune: true
@@ -87,7 +110,7 @@ spec:
       - values-gcp-demo.yaml
   destination:
     server: "https://kubernetes.default.svc"
-    namespace: nexus
+    namespace: codekarma
   syncPolicy:
     automated:
       prune: true
@@ -99,6 +122,8 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: postgres
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
   namespace: argocd
 spec:
   project: default
@@ -111,7 +136,7 @@ spec:
       - values-gcp-demo.yaml
   destination:
     server: "https://kubernetes.default.svc"
-    namespace: postgres
+    namespace: codekarma
   syncPolicy:
     automated:
       prune: true
@@ -135,7 +160,7 @@ spec:
       - values-gcp-demo.yaml
   destination:
     server: "https://kubernetes.default.svc"
-    namespace: prometheus
+    namespace: codekarma
   syncPolicy:
     automated:
       prune: true
@@ -147,6 +172,8 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: nginx
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
   namespace: argocd
 spec:
   project: default
@@ -159,7 +186,7 @@ spec:
       - values-gcp-demo.yaml
   destination:
     server: "https://kubernetes.default.svc"
-    namespace: nginx
+    namespace: codekarma
   syncPolicy:
     automated:
       prune: true

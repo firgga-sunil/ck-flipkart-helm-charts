@@ -1,0 +1,28 @@
+{{- /* Generic StorageClass renderer: renders each entry in storageclasses.classes when enabled */ -}}
+{{- $classes := .Values.storageclasses.classes | default list }}
+{{- range $i, $sc := $classes }}
+{{- if $sc.enabled }}
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: {{ $sc.name }}
+  {{- if $sc.isDefault }}
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "true"
+  {{- end }}
+provisioner: {{ $sc.provisioner }}
+{{- if $sc.reclaimPolicy }}
+reclaimPolicy: {{ $sc.reclaimPolicy }}
+{{- end }}
+volumeBindingMode: {{ $sc.volumeBindingMode | default "Immediate" }}
+parameters:
+{{- if $sc.parameters }}
+{{- range $key, $val := $sc.parameters }}
+  {{ $key }}: "{{ $val }}"
+{{- end }}
+{{- else }}
+  {}
+{{- end }}
+---
+{{- end }}
+{{- end }}

@@ -1,0 +1,13 @@
+# GCP-specific values for storage-classes chart
+# This will enable the GKE pd-ssd StorageClass and disable the EKS one
+storageclasses:
+  classes:
+    - name: pd-ssd
+      enabled: true
+      isDefault: true
+      provisioner: pd.csi.storage.gke.io
+      volumeBindingMode: WaitForFirstConsumer
+      reclaimPolicy: Delete
+      parameters:
+        type: pd-ssd
+        replication-type: none
