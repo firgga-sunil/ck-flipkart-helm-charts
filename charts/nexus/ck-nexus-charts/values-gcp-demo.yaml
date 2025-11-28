@@ -7,6 +7,7 @@ nexus_image:
 
 nexus_service:
   port: 8081
+  name: http
 
 # Server compression configuration
 server:
@@ -36,6 +37,22 @@ container:
       cpu: 1000m
       memory: 1Gi
 
+# Add pod labels so selector in ServiceMonitor matches the Pod
+
+podLabels:
+
+  app: ck-nexus-app
+
+  job: ck-nexus-app
+
+# Add service labels so Service selector matches and ServiceMonitor finds the Service
+
+serviceLabels:
+
+  app: ck-nexus-app
+
+  job: ck-nexus-app
+
 # Database configuration
 database:
   url: "jdbc:postgresql://ck-postgres:5432/ckservicedb?currentSchema=public"
@@ -50,3 +67,7 @@ prometheus:
 retrofit:
   readTimeout: 5
   writeTimeout: 5
+
+servicemonitor:
+
+  enabled: true
