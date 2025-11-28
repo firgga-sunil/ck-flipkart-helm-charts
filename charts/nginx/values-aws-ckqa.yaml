@@ -1,0 +1,35 @@
+# Application Settings
+name: ck-ingress-nginx
+
+# Deployment Settings
+replicaCount: 1
+
+# Domain Settings
+domains:
+  url: devapp.codekarma.tech
+
+service:
+  type: ClusterIP
+
+# Upstream Services
+upstreamServices:
+  nexus:
+    service: ck-nexus-app
+    port: 8081
+  collector:
+    service: ck-intel-collector-opentelemetry-collector
+    port: 4319
+  karmaLens:
+    service: karma-lens
+    port: 8080
+  mcp:
+    service: ck-mcp-server
+    port: 8547
+  gmcp:
+    service: ck-graph-mcp-server
+    port: 8547
+
+# Authorization Token Mappings
+authTokens:
+  "37a8eec1ce19687d132fe29051dca629d164e2c4958ba141d5f4133a33f0688f": "default"
+  "2a97516c354b68848cdbd8f54a226a0a55b21ed138e207ad6c5cbb9c00aa5aea": "demo"

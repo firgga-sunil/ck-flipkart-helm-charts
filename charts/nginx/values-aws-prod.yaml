@@ -1,0 +1,39 @@
+# Application Settings
+name: ck-ingress-nginx
+
+# Deployment Settings
+replicaCount: 1
+
+# Domain Settings
+domains:
+  url: app.codekarma.tech
+
+service:
+  type: ClusterIP
+
+# Upstream Services
+upstreamServices:
+  nexus:
+    service: ck-nexus-app
+    port: 8081
+  collector:
+    service: ck-intel-collector-opentelemetry-collector
+    port: 4319
+  karmaLens:
+    service: karma-lens
+    port: 8080
+  mcp:
+    service: ck-graph-mcp-server
+    port: 8547
+  gmcp:
+    service: ck-graph-mcp-server
+    port: 8547
+
+# Authorization Token Mappings
+# Replace this with actual prod tokens
+authTokens:
+  "8339192a370056e99f1254ab3d59ec1b30c99d012897b9a8eca8cd57da476bd5": "phonepe-local"
+  "236e32706a554a41afb9b70090849cb2d9cea886bbde0a65c7338baade2d48f3": "harness-stage"
+  "a87daaa8b679865d0da843a0dac7dc6772f77a44321afe46041d02ea0bafae7f": "harness-prod"
+  "b9d66f84969b3eee20ce916bbd6f0f9d9d2558be99a546e26113edfeda3bb02a": "groww-prod"
+  "28badcc94a4f9713ea7a3c6562ec5ee95c637d3d005cac3aac2727e7be2d0209": "groww-stage"

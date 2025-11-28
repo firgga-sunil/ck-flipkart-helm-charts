@@ -1,0 +1,106 @@
+# Configuration for AWS EKS deployment with Load Balancer support
+# 
+# Load Balancer Options:
+# 1. Network Load Balancer (NLB): Uses service type LoadBalancer (enabled by default)
+# 2. Application Load Balancer (ALB): Uses Ingress with AWS Load Balancer Controller (disabled by default)
+#
+# To use ALB instead of NLB:
+# 1. Set nexus_service.type to "ClusterIP" 
+# 2. Set ingress.enabled to true
+# 3. Update ingress.hosts with your domain
+# 4. Ensure AWS Load Balancer Controller is installed in your cluster
+
+replicaCount: 1
+
+nexus_image:
+  repository: ghcr.io/ckgitrepouser/ckqa/demo/nexus-app
+  tag: latest
+  pullPolicy: Always
+
+nexus_service:
+  port: 8081
+  # Service type: LoadBalancer for direct NLB, ClusterIP for use with Ingress/ALB
+  type: LoadBalancer
+  # AWS Network Load Balancer (NLB) configuration - used when type is LoadBalancer
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+    service.beta.kubernetes.io/aws-load-balancer-scheme: "internet-facing"
+    service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: "true"
+    # Load balancer preservation settings
+    service.beta.kubernetes.io/aws-load-balancer-name: "ck-nexus-demo-nlb"
+    # External DNS annotations (if external-dns is installed)
+    # external-dns.alpha.kubernetes.io/hostname: "nexus-demo.yourdomain.com"
+    # Optional: specify subnets for the load balancer
+    # service.beta.kubernetes.io/aws-load-balancer-subnets: "subnet-xxxxxxxx,subnet-yyyyyyyy"
+    # Optional: specify security groups
+    # service.beta.kubernetes.io/aws-load-balancer-security-groups: "sg-xxxxxxxx"
+    # Optional: preserve client IP
+    # service.beta.kubernetes.io/aws-load-balancer-proxy-protocol: "*"
+container:
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 500m
+      memory: 1Gi
+# Server compression configuration
+server:
+  compression:
+    enabled: true
+    mimeTypes: "application/json,application/xml,text/html,text/xml,text/plain,application/javascript,text/css"
+    minResponseSize: "1024"
+
+# We need this only for AWS
+imagePullSecrets:
+  - name: ckn-ghcr-secret
+
+# Node affinity configuration (disabled for demo by default)
+nodeAffinity:
+  enabled: false
+  nodeType: ""
+
+# We need this only for AWS
+tolerations: []
+
+# Database configuration
+database:
+  url: "jdbc:postgresql://ck-postgres.demo:5432/ckservicedb?currentSchema=public"
+  username: "cknexus"
+  password: "cknexus"
+
+# Prometheus configuration
+prometheus:
+  baseUrl: "http://ck-prometheus.ckqa:9090"
+  timeout: 5
+
+retrofit:
+  readTimeout: 5
+  writeTimeout: 5
+
+# Ingress configuration (Alternative to LoadBalancer service using AWS ALB)
+# Enable this if you prefer using AWS Load Balancer Controller (ALB) instead of NLB
+ingress:
+  enabled: false
+  className: "alb"
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+    alb.ingress.kubernetes.io/ssl-redirect: '443'
+    # Optional: specify subnets for the ALB
+    # alb.ingress.kubernetes.io/subnets: "subnet-xxxxxxxx,subnet-yyyyyyyy"
+    # Optional: specify security groups
+    # alb.ingress.kubernetes.io/security-groups: "sg-xxxxxxxx"
+    # Optional: enable WAF
+    # alb.ingress.kubernetes.io/wafv2-acl-arn: "arn:aws:wafv2:region:account:webacl/name/id"
+  hosts:
+    - host: nexus-demo.yourdomain.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+  # tls:
+  #   - secretName: nexus-tls
+  #     hosts:
+  #       - nexus-demo.yourdomain.com

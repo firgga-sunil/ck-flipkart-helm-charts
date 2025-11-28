@@ -1,0 +1,49 @@
+# Application Settings
+name: ck-ingress-nginx
+
+# Deployment Settings
+replicaCount: 1
+
+domains:
+  url: codekarma.fkcloud.in
+
+# Upstream Services
+upstreamServices:
+  nexus:
+    service: ck-nexus-app
+    port: 8081
+  collector:
+    service: ck-intel-collector-opentelemetry-collector
+    port: 4319
+  karmaLens:
+    service: karma-lens
+    port: 8080
+  mcp:
+    service: ck-mcp-server
+    port: 8547
+  gmcp:
+    service: ck-graph-mcp-server
+    port: 8547
+
+# Service configuration for GCP Load Balancer compatibility
+service:
+  type: NodePort
+
+# GCP specific settings
+gcp:
+  region: asia-south1-a
+  cluster: gke_fk-code-karma_asia-south1_gke-code-karma-prod-1
+  project: fk-code-karma
+
+# Node affinity configuration for n2d node type
+nodeAffinity:
+  machineFamily: cloud.google.com/machine-family
+  enabled: true
+  nodeType: "n2d"
+
+# Authorization Token Mappings
+authTokens:
+  "4fb05873f11b35d7ed04caa2012c1dd924b1b22f49df1cb13c25685abe93504e": "flipkart-stage"
+  "1e9a2ad530a2ff0304eed9b1bd51f547cab53ad2f87a14563d84019bb9a07a63": "flipkart-prod"
+
+

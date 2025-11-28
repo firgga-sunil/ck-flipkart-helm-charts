@@ -1,0 +1,43 @@
+# Application Settings
+name: ck-ingress-nginx
+
+# Deployment Settings
+replicaCount: 1
+
+# Domain Settings
+domains:
+  url: demoapp.codekarma.tech
+
+# Upstream Services
+upstreamServices:
+  nexus:
+    service: ck-nexus-app
+    port: 8081
+  collector:
+    service: ck-intel-collector-opentelemetry-collector
+    port: 4319
+  karmaLens:
+    service: karma-lens
+    port: 8080
+  mcp:
+    service: ck-mcp-server
+    port: 8547
+  gmcp:
+    service: ck-graph-mcp-server
+    port: 8547
+
+# Service configuration for GCP Load Balancer compatibility
+service:
+  type: NodePort
+
+# GCP specific settings
+gcp:
+  region: us-east1
+  cluster: gke_resounding-node-471205-f9_us-east1_demo-cluster
+  project: resounding-node-471205-f9
+
+# Authorization Token Mappings
+authTokens:
+  "YXV0aC10b2tlbi1kZW1v": "default"
+  "2a97516c354b68848cdbd8f54a226a0a55b21ed138e207ad6c5cbb9c00aa5aea": "demo"
+  "e8a60b93022e339ea77f7f34c9eee806a815a2946ee29cac695c288d9531ac31": "dotnet-demo"

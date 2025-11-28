@@ -1,0 +1,55 @@
+# GCP Demo environment specific values
+name: ck-mcp-server
+
+replicaCount: 1
+
+# Image will be set via --set parameters
+# image:
+#   repository: (set via --set)
+#   tag: (set via --set)
+#   pullPolicy: Always
+
+imagePullSecrets:
+  - name: ckn-ghcr-secret
+
+service:
+  type: ClusterIP
+  port: 8547
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 256Mi
+
+env:
+  nexus_endpoint: "http://ck-nexus-app:8081"
+  port: 8547
+  host: "0.0.0.0"
+  timezone: "UTC"
+  log_level: "INFO"  # Available: DEBUG, INFO, WARNING, ERROR, CRITICAL
+
+livenessProbe:
+  httpGet:
+    path: /health
+    port: http
+  initialDelaySeconds: 30
+  periodSeconds: 30
+
+readinessProbe:
+  httpGet:
+    path: /health
+    port: http
+  initialDelaySeconds: 10
+  periodSeconds: 10
+
+# GCP Demo specific tolerations and node selectors if needed
+tolerations:
+  - key: "CriticalAddonsOnly"
+    operator: "Exists"
+
+# GCP Demo specific annotations if needed
+# annotations:
+#   cloud.google.com/gke-nodepool: "default-pool"

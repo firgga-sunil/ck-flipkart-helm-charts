@@ -1,0 +1,239 @@
+# --- Port Configuration Quick Reference ---
+# This OpenTelemetry Collector is configured to use the following key ports:
+#
+# - Port 4319 (OTLP gRPC):
+#   - OTel Collector: Receives incoming application telemetry via OTLP gRPC.
+#   - Kubernetes: Exposed via ContainerPort, ServicePort (named 'otlp' or similar), and HostPort.
+#
+# - Port 8889 (Main Prometheus Exporter):
+#   - OTel Collector: Exports processed application metrics (from OTLP).
+#   - Kubernetes: Exposed via ContainerPort and ServicePort (named 'metrics').
+#   - ServiceMonitor: Targets the Service port named 'metrics' (i.e., 8889) for Prometheus to scrape.
+#
+# - Port 13134 (Health Check):
+#   - OTel Collector: The health_check extension listens on this port.
+#   - Kubernetes: Liveness and Readiness probes target this port on the container to check pod health.
+#
+# --- End Port Configuration Quick Reference ---
+
+
+# OpenTelemetry Collector configuration
+# mode: daemonset
+mode: deployment
+replicaCount: 1
+
+imagePullSecrets:
+  - name: ckn-ghcr-secret
+global:
+  imagePullSecrets:
+    - name: ckn-ghcr-secret
+# Image configuration - REMOVED
+# The image.repository, image.tag, and image.pullPolicy are dynamically set by the CI/CD workflow
+# during deployment using --set flags. This ensures version-specific deployments while keeping
+# the values file as a template for consistent configuration across all deployments.
+# 
+# Example of how it works:
+# helm upgrade --install ... --set image.repository="ghcr.io/username/prod/app" --set image.tag="v1.0.9"
+
+# Service configuration
+service:
+  type: ClusterIP #this will work within the same kubernetes cluster.
+  enabled: true
+
+# Ports configuration (OpenTelemetry Helm chart schema)
+ports:
+  otlp:
+    enabled: true
+    containerPort: 4319
+    servicePort: 4319
+    protocol: TCP
+    appProtocol: grpc
+  metrics: # This is for the Prometheus exporter
+    enabled: true
+    containerPort: 8889
+    servicePort: 8889
+    protocol: TCP
+  # Disable other default ports
+  otlp-http:
+    enabled: false
+  jaeger-compact:
+    enabled: false
+  jaeger-thrift:
+    enabled: false
+  jaeger-grpc:
+    enabled: false
+  zipkin:
+    enabled: false
+
+# Resource configuration
+resources:
+  limits:
+    cpu: 1
+    memory: 2Gi
+  requests:
+    cpu: 200m
+    memory: 400Mi
+
+# ServiceMonitor configuration
+serviceMonitor:
+  enabled: true
+  endpoints:
+    - port: metrics # This should match the name of the port in the Service
+      interval: 30s
+      path: /metrics
+  extraLabels:
+    app.kubernetes.io/name: otel-collector
+    app: ck-otel-collector
+    release: ckp
+
+# Health check probes
+livenessProbe:
+  httpGet:
+    path: /
+    port: 13134
+  initialDelaySeconds: 5
+  periodSeconds: 20
+
+readinessProbe:
+  httpGet:
+    path: /
+    port: 13134
+  initialDelaySeconds: 5
+  periodSeconds: 10
+
+# Collector configuration
+config:
+  extensions:
+    health_check:
+      endpoint: "0.0.0.0:13134"
+
+  receivers:
+    otlp: # Only OTLP gRPC receiver is defined
+      protocols:
+        grpc:
+          # Ensure this port matches ports.otlp.containerPort
+          endpoint: "0.0.0.0:4319"
+        http: null
+      
+      # Header extraction configuration for multi-tenancy and environment tagging
+      header_extraction:
+        enabled: true
+        headers_to_extract:
+          # Extract ck-domain from header and add as domain resource attribute
+          - header_name: "ck-domain"
+            attribute_name: "ck_domain"
+    
+    # Explicitly disable default receivers
+    jaeger: null
+    zipkin: null
+    prometheus: null  # Explicitly disable the default prometheus receiver
+     
+  processors:
+    batch:
+      timeout: 1m
+      send_batch_size: 16384
+    # Explicitly disable default memory_limiter
+    memory_limiter: null
+
+    # # Protects the collector from running out of memory.
+    # memory_limiter:
+    #   check_interval: 1s
+    #   # Set limit to ~75-80% of your requested memory (400Mi)
+    #   limit_mib: 400
+    #   # Spike limit can be a bit higher, e.g., up to the request limit or slightly above
+    #   spike_limit_mib: 380
+
+    metricsaggregator:
+      # Global configuration - applies to all aggregation rules
+      group_by_labels:
+        - "ck_service_name"
+        - "agent_version"
+        - "ck_namespace"
+        - "ck_cluster_name"
+        - "path_key"
+        - "error_code"
+        - "mpk"
+        - "fc"
+        - "flow_id"
+        - "quantile"
+        # Header extraction attributes
+        - "ck_domain"
+
+      output_resource_attributes:
+        otel_output_metric: "true"
+        otel_output_processor: "metricsaggregator"
+
+      aggregation_rules:
+        # Aggregation 1: Sum throughput metrics across all pods
+        - metric_pattern: "ck_graph_throughput"
+          match_type: "strict"
+          output_metric_name: "ck_graph_throughput"
+          aggregation_type: "sum"
+          preserve_original_metrics: false
+          output_metric_type: "sum"
+
+        - metric_pattern: "ck_graph_error_count"
+          match_type: "strict"
+          output_metric_name: "ck_graph_error_count"
+          aggregation_type: "sum"
+          preserve_original_metrics: false
+          output_metric_type: "sum"
+
+        # Aggregation 2: Average latency metrics across all pods
+        - metric_pattern: "ck_graph_latency"
+          match_type: "strict"
+          output_metric_name: "ck_graph_latency_nanoseconds"
+          aggregation_type: "mean"
+          preserve_original_metrics: false
+          output_metric_type: "gauge"
+
+        - metric_pattern: "ck_cpu_utilization_percent"
+          match_type: "strict"
+          output_metric_name: "ck_cpu_utilization_percent"
+          aggregation_type: "max"
+          preserve_original_metrics: false
+          output_metric_type: "gauge"
+
+        - metric_pattern: "ck_method_throughput"
+          match_type: "strict"
+          output_metric_name: "ck_method_throughput"
+          aggregation_type: "sum"
+          preserve_original_metrics: false
+          output_metric_type: "sum"
+
+        - metric_pattern: "ck_method_error_count"
+          match_type: "strict"
+          output_metric_name: "ck_method_error_count"
+          aggregation_type: "sum"
+          preserve_original_metrics: false
+          output_metric_type: "sum"
+
+  exporters:
+    prometheus:
+      # Ensure this port matches ports.metrics.containerPort
+      endpoint: "0.0.0.0:8889"
+      send_timestamps: true 
+      metric_expiration: 180m 
+      enable_cleanup_api: true 
+      resource_to_telemetry_conversion: 
+        enabled: true
+
+    # Debug exporter for troubleshooting
+    debug:
+      verbosity: detailed
+
+  service:
+    extensions: [health_check]
+    pipelines:
+      metrics:
+        receivers:
+          - otlp
+        processors:
+          - batch
+          - metricsaggregator
+        exporters:
+          - prometheus
+          - debug
+      # Explicitly disable other pipelines
+      logs: null
+      traces: null

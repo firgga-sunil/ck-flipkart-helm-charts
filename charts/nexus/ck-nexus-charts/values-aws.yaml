@@ -1,0 +1,52 @@
+replicaCount: 1
+
+nexus_image:
+  repository: ghcr.io/ckgitrepouser/prod/nexus/nexus-app
+  tag: latest
+  pullPolicy: Always
+
+nexus_service:
+  port: 8081
+
+# Server compression configuration
+server:
+  compression:
+    enabled: true
+    mimeTypes: "application/json,application/xml,text/html,text/xml,text/plain,application/javascript,text/css"
+    minResponseSize: "1024"
+
+imagePullSecrets:
+  - name: ckn-ghcr-secret
+
+# Node affinity configuration (disabled for AWS by default)
+nodeAffinity:
+  enabled: false
+  nodeType: ""
+
+tolerations:
+  - key: "CriticalAddonsOnly"
+    operator: "Exists"
+
+container:
+  resources:
+    limits:
+      cpu: 2000m
+      memory: 2Gi
+    requests:
+      cpu: 1000m
+      memory: 1Gi
+
+# Database configuration
+database:
+  url: "jdbc:postgresql://ck-postgres:5432/ckservicedb?currentSchema=public"
+  username: "cknexus"
+  password: "cknexus"
+
+# Prometheus configuration
+prometheus:
+  baseUrl: "http://ck-prometheus:9090"
+  timeout: 5
+
+retrofit:
+  readTimeout: 5
+  writeTimeout: 5

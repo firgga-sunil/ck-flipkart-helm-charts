@@ -1,0 +1,47 @@
+# Application Settings
+name: ck-ingress-nginx
+
+# Deployment Settings
+replicaCount: 1
+
+# Domain Settings - Using internal IP for Cleartrip setup
+domains:
+  url: codekarma-qa.cleartripcorp.com
+
+# Upstream Services
+upstreamServices:
+  nexus:
+    service: ck-nexus-app
+    port: 8081
+  collector:
+    service: ck-intel-collector-opentelemetry-collector
+    port: 4319
+  karmaLens:
+    service: karma-lens
+    port: 8080
+  mcp:
+    service: ck-mcp-server
+    port: 8547
+  gmcp:
+    service: ck-graph-mcp-server
+    port: 8547
+
+# Service configuration for GCP Load Balancer compatibility
+service:
+  type: NodePort
+
+# GCP specific settings
+gcp:
+  region: asia-south1-a
+  cluster: gke_ct-codekarma-infra_asia-south1-a_ct-codekarma-cluster
+  project: ct-codekarma-infra
+
+# Node affinity configuration for n2d node type
+nodeAffinity:
+  machineFamily: cloud.google.com/machine-family
+  enabled: true
+  nodeType: "n2d"
+
+# Authorization Token Mappings
+authTokens:
+  "702fed90812ed314ec4275191c23a9f75c4164a9f414e5d620c7374e075c755c": "cleartrip-stage"

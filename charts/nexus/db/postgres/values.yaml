@@ -1,0 +1,42 @@
+
+image:
+  repository: bitnamilegacy/postgresql
+  tag: "15.3.0"
+  pullPolicy: IfNotPresent
+
+credentials:
+  username: cknexus
+  password: cknexus
+  database: ckservicedb
+
+persistence:
+  enabled: true
+  storageClass: "standard"
+  size: 8Gi
+
+service:
+  type: ClusterIP
+  port: 5432
+
+resources:
+  requests:
+    memory: "512Mi"
+    cpu: "512m"
+  limits:
+    memory: "1024Mi"
+    cpu: "1024m" 
+
+# Add init scripts configuration
+initScripts:
+  enabled: true
+  scripts:
+    - name: "01-init.sql"
+      path: "init/01-init.sql"
+
+# Node affinity configuration (disabled by default)
+nodeAffinity:
+  enabled: false
+  nodeType: ""
+
+# Tolerations (empty by default)
+tolerations: []

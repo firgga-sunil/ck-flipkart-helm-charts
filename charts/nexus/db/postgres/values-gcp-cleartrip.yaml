@@ -1,0 +1,44 @@
+image:
+  repository: bitnamilegacy/postgresql
+  tag: "15.3.0"
+  pullPolicy: IfNotPresent
+
+credentials:
+  username: cknexus
+  password: cknexus
+  database: ckservicedb
+
+persistence:
+  enabled: true
+  storageClass: "premium-rwo"
+  size: 50Gi
+
+service:
+  type: NodePort
+  port: 5432
+
+resources:
+  requests:
+    memory: "1024Mi"
+    cpu: "1024m"
+  limits:
+    memory: "1048Mi"
+    cpu: "1024m"
+
+# Add init scripts configuration
+initScripts:
+  enabled: true
+  scripts:
+    - name: "01-init.sql"
+      path: "init/01-init.sql"
+
+# Node affinity configuration for n2d node type
+nodeAffinity:
+  enabled: true
+  nodeType: "n2d"
+
+tolerations:
+  - key: "nodetype"
+    operator: "Equal"
+    value: "n2d"
+    effect: "NoSchedule"

@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ck-postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ck-postgres
+  template:
+    metadata:
+      labels:
+        app: ck-postgres
+    spec:
+      securityContext:
+        runAsUser: 1001
+        fsGroup: 1001
+      {{- if and .Values.nodeAffinity .Values.nodeAffinity.enabled }}
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: cloud.google.com/machine-family
+                operator: In
+                values:
+                - {{ .Values.nodeAffinity.nodeType }}
+      {{- end }}
+      tolerations:
+        {{- if .Values.tolerations }}
+        {{- toYaml .Values.tolerations | nindent 8 }}
+        {{- end }}
+      containers:
+        - name: ck-postgres
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.service.port }}
+          envFrom:
+            - secretRef:
+                name: ck-postgres-secret
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /bitnami/postgresql/
+            - name: init-scripts
+              mountPath: /docker-entrypoint-initdb.d
+      volumes:
+        - name: postgres-data
+          persistentVolumeClaim:
+            claimName: ck-postgres-pvc 
+        - name: init-scripts
+          configMap:
+            name: ck-postgres-init 

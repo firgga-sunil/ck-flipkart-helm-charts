@@ -1,0 +1,39 @@
+image:
+  repository: bitnamilegacy/postgresql
+  tag: "15.3.0"
+  pullPolicy: IfNotPresent
+
+credentials:
+  username: cknexus
+  password: cknexus
+  database: ckservicedb
+
+persistence:
+  enabled: true
+  storageClass: "gp2"
+  size: 30Gi
+
+service:
+  type: ClusterIP
+  port: 5432
+
+resources:
+  requests:
+    memory: "1024Mi"
+    cpu: "1024m"
+  limits:
+    memory: "2048Mi"
+    cpu: "1024m" 
+
+# Add init scripts configuration
+initScripts:
+  enabled: true
+  scripts:
+    - name: "01-init.sql"
+      path: "init/01-init.sql"
+
+tolerations:
+  - key: "nodetype"
+    operator: "Equal"
+    value: "db-monitoring-node"
+    effect: "NoSchedule"

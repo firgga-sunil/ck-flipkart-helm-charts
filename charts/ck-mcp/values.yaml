@@ -1,0 +1,50 @@
+# Default values for ck-mcp-charts
+name: ck-mcp-server
+
+replicaCount: 1
+
+# Image will be set via --set parameters
+image:
+  repository: "ghcr.io/ckgitrepouser/prod/ck-mcp-server/ck-mcp-server"
+  tag: "latest"
+  pullPolicy: Always
+
+imagePullSecrets:
+- name: ckn-ghcr-secret
+
+service:
+  type: ClusterIP
+  port: 8547
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 256Mi
+
+env:
+  nexus_endpoint: "http://ck-nexus-app:8081"
+  port: 8547
+  host: "0.0.0.0"
+  timezone: "UTC"
+  log_level: "INFO" # Available: DEBUG, INFO, WARNING, ERROR, CRITICAL
+
+livenessProbe:
+  httpGet:
+    path: /health
+    port: http
+  initialDelaySeconds: 30
+  periodSeconds: 30
+
+readinessProbe:
+  httpGet:
+    path: /health
+    port: http
+  initialDelaySeconds: 10
+  periodSeconds: 10
+
+tolerations:
+- key: "CriticalAddonsOnly"
+  operator: "Exists"

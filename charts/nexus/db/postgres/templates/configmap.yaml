@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ck-postgres-init
+data:
+  01-init.sql: |-
+{{ .Files.Get "init/01-init.sql" | indent 4 }}

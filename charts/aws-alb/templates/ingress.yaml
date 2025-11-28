@@ -1,0 +1,75 @@
+# gRPC Ingress
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Values.name }}-grpc
+  namespace: {{ .Values.namespace }}
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+    # HTTP2 support (enables gRPC compatibility)
+    alb.ingress.kubernetes.io/alpn-policy: HTTP2Preferred
+    # Backend protocol version for gRPC over HTTP/2
+    alb.ingress.kubernetes.io/backend-protocol-version: HTTP2
+    # Health check configuration (HTTP for health checks)
+    alb.ingress.kubernetes.io/healthcheck-protocol: HTTP
+    alb.ingress.kubernetes.io/healthcheck-path: /
+    alb.ingress.kubernetes.io/healthcheck-port: traffic-port
+    alb.ingress.kubernetes.io/certificate-arn: >-
+      {{ join "," .Values.certificates }}
+    alb.ingress.kubernetes.io/group.name: {{ .Values.groupName }}
+  {{- if .Values.loadBalancerName }}
+    alb.ingress.kubernetes.io/load-balancer-name: {{ .Values.loadBalancerName }}
+  {{- end }}
+spec:
+  ingressClassName: alb
+  rules:
+    - http:
+        paths:
+          # Exact gRPC path from nginx config
+          - path: /opentelemetry.proto.collector.metrics.v1.MetricsService/Export
+            pathType: Exact
+            backend:
+              service:
+                name: {{ .Values.backend.serviceName }}
+                port:
+                  number: {{ .Values.backend.servicePort }}
+
+---
+# HTTP Ingress (new, for web browsers and APIs)
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Values.name }}-http
+  namespace: {{ .Values.namespace }}
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+    # Backend protocol version for HTTP/1.1
+    alb.ingress.kubernetes.io/backend-protocol-version: HTTP1
+    # Health check configuration (HTTP for health checks)
+    alb.ingress.kubernetes.io/healthcheck-protocol: HTTP
+    alb.ingress.kubernetes.io/healthcheck-path: /
+    alb.ingress.kubernetes.io/healthcheck-port: traffic-port
+    alb.ingress.kubernetes.io/certificate-arn: >-
+      {{ join "," .Values.certificates }}
+    alb.ingress.kubernetes.io/group.name: {{ .Values.groupName }}
+  {{- if .Values.loadBalancerName }}
+    alb.ingress.kubernetes.io/load-balancer-name: {{ .Values.loadBalancerName }}
+  {{- end }}
+spec:
+  ingressClassName: alb
+  rules:
+    - http:
+        paths:
+          - path: /          # Everything except the specific gRPC path
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Values.backend.serviceName }}
+                port:
+                  number: {{ .Values.backend.servicePort }}

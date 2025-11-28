@@ -1,0 +1,238 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.name }}-config
+data:
+  nginx.conf: |
+    worker_processes 1;
+    events {
+      worker_connections 1024;
+    }
+    http {
+      # Enable HTTP/2
+      http2 on;
+      
+      # Set maximum allowed size of client request body
+      client_max_body_size 100m;
+      
+      # Common headers and settings
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header X-Forwarded-Proto $scheme;
+      proxy_http_version 1.1;
+      proxy_connect_timeout 5s;
+      proxy_read_timeout 30s;
+
+      # Token to domain mapping
+      map $http_authorization $resolved_domain {
+        {{- range $token, $domain := .Values.authTokens }}
+        "~*Bearer {{ $token }}" "{{ $domain }}";
+        {{- end }}
+        default "";
+      }
+
+      # Check if we have a valid domain for auto paths
+      map $resolved_domain $has_valid_domain {
+        "" "false";
+        default "true";
+      }
+
+      # Check if auth header exists
+      map $http_authorization $has_auth {
+        "~*Bearer" "true";
+        default "false";
+      }
+
+      # Default server block for health checks and unmatched hostnames
+      server {
+        listen 80 default_server;
+        server_name _;
+        location ^~ /.well-known/acme-challenge/ {
+          default_type "text/plain";
+          return 200 "acme-ok";
+        } 
+        # Health check at `/`
+        location = / {
+            default_type text/plain;
+            return 200 'healthy';
+        }
+  
+        # Return 404 for all other paths when hostname doesn't match
+        location / {
+          return 404 'Invalid hostname';
+        }
+      }
+
+      {{- if .Values.domains.url }}
+      # Single domain server block for {{ .Values.domains.url }}
+      server {
+        listen 80;
+        server_name {{ .Values.domains.url }};
+
+        location /nexus/auto {
+          # Check for valid authorization - return 403 if no valid auth
+          if ($has_valid_domain = "false") {
+            return 403 'Please send valid authorisation details';
+          }
+          
+          # Transform URL based on auth - with auth: /nexus/auto/abc/def to /domain1/abc/def
+          rewrite ^/nexus/auto/(.*)$ /$resolved_domain/$1 break;
+          
+          proxy_pass http://{{ .Values.upstreamServices.nexus.service }}:{{ .Values.upstreamServices.nexus.port }};
+          proxy_set_header Host $host;
+        }
+        location /mcp {
+          # Check for valid authorization - return 403 if no valid auth
+          if ($has_valid_domain = "false") {
+            return 403 'Please send valid authorisation details';
+          }
+          
+          proxy_pass http://{{ .Values.upstreamServices.mcp.service }}:{{ .Values.upstreamServices.mcp.port }};
+          proxy_set_header Host $host;
+          proxy_set_header ck-domain $resolved_domain;
+        }
+        location /gmcp {
+          # Check for valid authorization - return 403 if no valid auth
+          if ($has_valid_domain = "false") {
+            return 403 'Please send valid authorisation details';
+          }
+          
+          proxy_pass http://{{ .Values.upstreamServices.gmcp.service }}:{{ .Values.upstreamServices.gmcp.port }};
+          proxy_set_header Host $host;
+          proxy_set_header ck-domain $resolved_domain;
+        }
+        location ^~ /.well-known/acme-challenge/ {
+          default_type "text/plain";
+          return 200 "acme-ok";
+        } 
+        # Direct gRPC service path for Java clients that send the full path
+        location /opentelemetry.proto.collector.metrics.v1.MetricsService/Export {
+          # Check for valid authorization - return 403 if no valid auth
+          if ($has_valid_domain = "false") {
+            return 403 'Please send valid authorisation details';
+          }
+          
+          grpc_pass grpc://{{ .Values.upstreamServices.collector.service }}:{{ .Values.upstreamServices.collector.port }};
+          
+          # gRPC specific headers
+          grpc_set_header Host $host;
+          grpc_set_header X-Real-IP $remote_addr;
+          grpc_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          grpc_set_header X-Forwarded-Proto $scheme;
+          
+          # Add ck-domain header with resolved domain
+          grpc_set_header ck-domain $resolved_domain;
+        }
+        # Handle missing favicon.ico gracefully
+        location = /favicon.ico {
+          return 204;  # Return "No Content" status
+          access_log off;
+          log_not_found off;
+        }
+
+        # Forward all other traffic to karma-lens service
+        location / {
+          proxy_pass http://{{ .Values.upstreamServices.karmaLens.service }}:{{ .Values.upstreamServices.karmaLens.port }};
+          proxy_set_header Host $host;
+          
+          # Add error handling
+          proxy_intercept_errors on;
+          error_page 502 504 /50x.html;
+          location = /50x.html {
+            return 500 'Backend service temporarily unavailable';
+          }
+        }
+      }
+      {{- else }}
+      # Server block for {{ .Values.domains.api }}
+      server {
+        listen 80;
+        server_name {{ .Values.domains.api }};
+
+        location /nexus/auto {
+          # Check for valid authorization - return 403 if no valid auth
+          if ($has_valid_domain = "false") {
+            return 403 'Please send valid authorisation details';
+          }
+          
+          # Transform URL based on auth - with auth: /nexus/auto/abc/def to /domain1/abc/def
+          rewrite ^/nexus/auto/(.*)$ /$resolved_domain/$1 break;
+          
+          proxy_pass http://{{ .Values.upstreamServices.nexus.service }}:{{ .Values.upstreamServices.nexus.port }};
+          proxy_set_header Host $host;
+        }
+        location /mcp {
+          # Check for valid authorization - return 403 if no valid auth
+          if ($has_valid_domain = "false") {
+            return 403 'Please send valid authorisation details';
+          }
+          
+          proxy_pass http://{{ .Values.upstreamServices.mcp.service }}:{{ .Values.upstreamServices.mcp.port }};
+          proxy_set_header Host $host;
+          proxy_set_header ck-domain $resolved_domain;
+        }
+        location /gmcp {
+          # Check for valid authorization - return 403 if no valid auth
+          if ($has_valid_domain = "false") {
+            return 403 'Please send valid authorisation details';
+          }
+          
+          proxy_pass http://{{ .Values.upstreamServices.gmcp.service }}:{{ .Values.upstreamServices.gmcp.port }};
+          proxy_set_header Host $host;
+          proxy_set_header ck-domain $resolved_domain;
+        }
+        location ^~ /.well-known/acme-challenge/ {
+          default_type "text/plain";
+          return 200 "acme-ok";
+        } 
+        # Direct gRPC service path for Java clients that send the full path
+        location /opentelemetry.proto.collector.metrics.v1.MetricsService/Export {
+          # Check for valid authorization - return 403 if no valid auth
+          if ($has_valid_domain = "false") {
+            return 403 'Please send valid authorisation details';
+          }
+          
+          grpc_pass grpc://{{ .Values.upstreamServices.collector.service }}:{{ .Values.upstreamServices.collector.port }};
+          
+          # gRPC specific headers
+          grpc_set_header Host $host;
+          grpc_set_header X-Real-IP $remote_addr;
+          grpc_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          grpc_set_header X-Forwarded-Proto $scheme;
+          
+          # Add ck-domain header with resolved domain
+          grpc_set_header ck-domain $resolved_domain;
+        }
+      }
+
+      # Server block for {{ .Values.domains.app }}
+      server {
+        listen 80;
+        server_name {{ .Values.domains.app }};
+
+        location ^~ /.well-known/acme-challenge/ {
+          default_type "text/plain";
+          return 200 "acme-ok";
+        } 
+        # Handle missing favicon.ico gracefully
+        location = /favicon.ico {
+          return 204;  # Return "No Content" status
+          access_log off;
+          log_not_found off;
+        }
+
+        # Forward all traffic to karma-lens service
+        location / {
+          proxy_pass http://{{ .Values.upstreamServices.karmaLens.service }}:{{ .Values.upstreamServices.karmaLens.port }};
+          proxy_set_header Host $host;
+          
+          # Add error handling
+          proxy_intercept_errors on;
+          error_page 502 504 /50x.html;
+          location = /50x.html {
+            return 500 'Backend service temporarily unavailable';
+          }
+        }
+      }
+      {{- end }}
+    }

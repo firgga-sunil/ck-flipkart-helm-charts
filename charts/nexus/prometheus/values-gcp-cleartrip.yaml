@@ -1,0 +1,89 @@
+# Default values for kube-prometheus-stack - GCP Configuration
+nameOverride: "ck"
+fullnameOverride: "ck"
+
+prometheus:
+  enabled: true
+  fullnameOverride: "ck"
+  prometheusSpec:
+    maximumStartupDurationSeconds: 60
+    podMonitorSelector: {}
+    probeSelector: {}
+    retention: 90d
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: premium-rwo
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 100Gi
+    resources:
+      requests:
+        memory: "4096Mi"
+        cpu: "4000m"
+      limits:
+        memory: "4096Mi"
+        cpu: "4000m"
+    # Node affinity configuration for n2d node type
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: cloud.google.com/machine-family
+                  operator: In
+                  values:
+                    - n2d
+    # GCP-specific tolerations for GKE nodes
+    tolerations:
+      - key: "nodetype"
+        operator: "Equal"
+        value: "n2d"
+        effect: "NoSchedule"
+    securityContext:
+      fsGroup: 2000
+      runAsNonRoot: true
+      runAsUser: 1000
+    # Enable the Admin API
+    enableAdminAPI: true
+  # Service configuration for NodePort access
+  service:
+    type: NodePort
+
+# Disable other components
+
+kubeApiServer:
+  enabled: false
+prometheus-node-exporter:
+  enabled: false
+grafana:
+  enabled: false
+alertmanager:
+  enabled: false
+nodeExporter:
+  enabled: false
+kubeStateMetrics:
+  enabled: false
+kubeControllerManager:
+  enabled: false
+coreDns:
+  enabled: false
+kubeEtcd:
+  enabled: false
+kubeProxy:
+  enabled: false
+kubeScheduler:
+  enabled: false
+kubelet:
+  serviceMonitor:
+    enabled: false
+  service:
+    enabled: false
+
+# Disable default ServiceMonitors
+defaultRules:
+  create: false
+
+# Disable additional ServiceMonitors
+additionalServiceMonitors: []

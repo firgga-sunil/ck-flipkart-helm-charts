@@ -1,0 +1,15 @@
+apiVersion: v2
+name: ck-graph-mcp-charts
+description: A Helm chart for ck-graph-mcp-server - Python MCP server for Graph API integration
+type: application
+version: 1.0.0
+appVersion: "2.0.0"
+keywords:
+  - mcp
+home: https://github.com/codekarma/ck-graph-mcp
+sources:
+  - https://github.com/codekarma/ck-graph-mcp
+maintainers:
+  - name: CodeKarma Team
+    email: team@codekarma.tech
+dependencies: []

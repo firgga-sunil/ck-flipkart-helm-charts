@@ -1,0 +1,69 @@
+# Default values for kube-prometheus-stack
+nameOverride: "ck"
+fullnameOverride: "ck"
+
+prometheus:
+  enabled: true
+  fullnameOverride: "ck"
+  prometheusSpec:
+    maximumStartupDurationSeconds: 60
+    podMonitorSelector: {}
+    probeSelector: {}
+    retention: 180d
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: standard
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 1Gi
+    # Node affinity configuration (disabled by default)
+    # affinity:
+    #   nodeAffinity:
+    #     requiredDuringSchedulingIgnoredDuringExecution:
+    #       nodeSelectorTerms:
+    #       - matchExpressions:
+    #         - key: cloud.google.com/machine-family
+    #           operator: In
+    #           values:
+    #           - n2d
+    # Enable the Admin API
+    enableAdminAPI: true
+
+# Disable other components
+
+kubeApiServer:
+  enabled: false
+prometheus-node-exporter:
+  enabled: false
+grafana:
+  enabled: false
+alertmanager:
+  enabled: false
+nodeExporter:
+  enabled: false
+kubeStateMetrics:
+  enabled: false
+kubeControllerManager:
+  enabled: false
+coreDns:
+  enabled: false
+kubeEtcd:
+  enabled: false
+kubeProxy:
+  enabled: false
+kubeScheduler:
+  enabled: false
+kubelet:
+  serviceMonitor:
+    enabled: false
+  service:
+    enabled: false
+
+# Disable default ServiceMonitors
+defaultRules:
+  create: false
+
+# Disable additional ServiceMonitors
+additionalServiceMonitors: []

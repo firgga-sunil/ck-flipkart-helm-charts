@@ -1,0 +1,168 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ck-graph-mcp-server
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: "git@github.com:codekarma-tech/ck-helm-charts.git"
+    targetRevision: main
+    path: "./charts/ck-graph-mcp-server"
+    helm:
+      valueFiles:
+      - values.yaml
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: ck-graph-mcp-server
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ck-mcp
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: "git@github.com:codekarma-tech/ck-helm-charts.git"
+    targetRevision: main
+    path: "./charts/ck-mcp"
+    helm:
+      valueFiles:
+      - values.yaml
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: ck-mcp
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: karma-lens
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: "git@github.com:codekarma-tech/ck-helm-charts.git"
+    targetRevision: main
+    path: "./charts/karma-lens"
+    helm:
+      valueFiles:
+      - values-prod.yaml
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: karma-lens
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ck-nexus-charts
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: "git@github.com:codekarma-tech/ck-helm-charts.git"
+    targetRevision: main
+    path: "./charts/nexus/ck-nexus-charts"
+    helm:
+      valueFiles:
+      - values-gcp-demo.yaml
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: nexus
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: postgres
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: "git@github.com:codekarma-tech/ck-helm-charts.git"
+    targetRevision: main
+    path: "./charts/nexus/db/postgres"
+    helm:
+      valueFiles:
+      - values-gcp-demo.yaml
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: postgres
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: prometheus
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: "git@github.com:codekarma-tech/ck-helm-charts.git"
+    targetRevision: main
+    path: "./charts/nexus/prometheus"
+    helm:
+      valueFiles:
+      - values-gcp-demo.yaml
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: prometheus
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: nginx
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: "git@github.com:codekarma-tech/ck-helm-charts.git"
+    targetRevision: main
+    path: "./charts/nginx"
+    helm:
+      valueFiles:
+      - values-gcp-demo.yaml
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: nginx
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true

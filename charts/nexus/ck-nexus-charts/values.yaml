@@ -1,0 +1,55 @@
+replicaCount: 1
+
+nexus_image:
+  repository: nexus-app
+  tag: latest
+  pullPolicy: IfNotPresent
+
+nexus_service:
+  port: 8081
+
+container:
+  resources:
+    requests:
+      cpu: "500m"
+      memory: "512Mi"
+    limits:
+      cpu: "1000m"
+      memory: "1024Mi"
+
+# Server compression configuration
+server:
+  compression:
+    enabled: true
+    mimeTypes: "application/json,application/xml,text/html,text/xml,text/plain,application/javascript,text/css"
+    minResponseSize: "1024"
+
+# We need this only for AWS
+imagePullSecrets: []
+
+# Node affinity configuration (disabled by default)
+nodeAffinity:
+  enabled: false
+  nodeType: ""
+
+# We need this only for AWS
+tolerations: []
+
+# Database configuration
+database:
+  url: "jdbc:postgresql://ck-postgres:5432/ckservicedb?currentSchema=public"
+  username: "cknexus"
+  password: "cknexus"
+
+# Prometheus configuration
+prometheus:
+  baseUrl: "http://ck-prometheus:9090"
+  timeout: 5
+
+retrofit:
+  readTimeout: 5
+  writeTimeout: 5
+
+ingress:
+  enabled: false
+

@@ -1,0 +1,44 @@
+# Application Settings
+name: ck-ingress-nginx
+
+# Deployment Settings
+replicaCount: 1
+
+# Domain Settings
+domains:
+  api: fkapi.codekarma.tech
+  app: fkapp.codekarma.tech
+
+# Upstream Services
+upstreamServices:
+  nexus:
+    service: ck-nexus-app
+    port: 8081
+  collector:
+    service: ck-intel-collector-opentelemetry-collector
+    port: 4319
+  karmaLens:
+    service: karma-lens
+    port: 8080
+  mcp:
+    service: ck-mcp-server
+    port: 8547
+  gmcp:
+    service: ck-graph-mcp-server
+    port: 8547
+
+# Service configuration for GCP Load Balancer compatibility
+service:
+  type: NodePort
+
+# GCP specific settings
+gcp:
+  region: us-east1
+  cluster: ck-fk-pg
+  project: codekarma-auth
+
+# Authorization Token Mappings
+authTokens:
+  "token1": "domain1_Updated"
+  "token2": "domain2"
+  "CK-Token-ccf7d39a640d6b841572187aa5206041": "dev_test"

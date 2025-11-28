@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ck-nexus-app
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: ck-nexus-app
+  template:
+    metadata:
+      labels:
+        app: ck-nexus-app
+    spec:
+      imagePullSecrets:
+        {{- toYaml .Values.imagePullSecrets | nindent 8 }}
+      {{- if and .Values.nodeAffinity .Values.nodeAffinity.enabled }}
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: {{ .Values.nodeAffinity.machineFamily }}
+                operator: In
+                values:
+                - {{ .Values.nodeAffinity.nodeType }}
+      {{- end }}
+      tolerations:
+        {{- toYaml .Values.tolerations | nindent 8 }}
+      containers:
+        - name: ck-nexus-app
+          image: {{ .Values.nexus_image.repository }}:{{ .Values.nexus_image.tag }}
+          imagePullPolicy: {{ .Values.nexus_image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.nexus_service.port }}
+          env:
+            - name: TZ
+              value: "Asia/Kolkata"
+            - name: JAVA_OPTS
+              value: "-Duser.timezone=Asia/Kolkata"
+            - name: SPRING_DATASOURCE_URL
+              value: "{{ .Values.database.url }}"
+            - name: SPRING_PROFILES_ACTIVE
+              value: "domain"
+            - name: RETROFIT_BASEURLS_PROMETHEUS
+              value: "{{ .Values.prometheus.baseUrl }}"
+            - name: SPRING_DATASOURCE_USERNAME
+              value: "{{ .Values.database.username }}"
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: "{{ .Values.database.password }}" 
+            - name: SERVER_COMPRESSION_ENABLED
+              value: "{{ .Values.server.compression.enabled }}"
+            - name: SERVER_COMPRESSION_MIME_TYPES
+              value: "{{ .Values.server.compression.mimeTypes }}"
+            - name: SERVER_COMPRESSION_MIN_RESPONSE_SIZE
+              value: "{{ .Values.server.compression.minResponseSize }}"
+            - name: "PROMETHEUS_TIMEOUT_DURATION"
+              value: "{{ .Values.prometheus.timeout }}"
+            - name: "RETROFIT_READ_TIMEOUT"
+              value: "{{ .Values.retrofit.readTimeout }}"
+            - name: "RETROFIT_WRITE_TIMEOUT"
+              value: "{{ .Values.retrofit.writeTimeout }}"
+          {{- if .Values.container.resources }}
+          resources:
+            {{- toYaml .Values.container.resources | nindent 12 }}
+          {{- end }}
+

@@ -1,0 +1,86 @@
+# Default values for kube-prometheus-stack
+nameOverride: "ck"
+fullnameOverride: "ck"
+
+prometheus:
+  enabled: true
+  fullnameOverride: "ck"
+  prometheusSpec:
+    maximumStartupDurationSeconds: 60
+    podMonitorSelector: {}
+    probeSelector: {}
+    retention: 180d
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: gp2
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 8Gi
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "100m"
+      limits:
+        memory: "512Mi"
+        cpu: "200m"
+    # Add tolerations to ensure Prometheus can be scheduled
+    tolerations:
+      - key: "nodetype"
+        operator: "Equal"
+        value: "db-monitoring-node"
+        effect: "NoSchedule"
+    # Add node affinity to ensure proper scheduling
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: kubernetes.io/os
+                  operator: In
+                  values:
+                    - linux
+    securityContext:
+      fsGroup: 2000
+      runAsNonRoot: true
+      runAsUser: 1000
+    # Enable the Admin API
+    enableAdminAPI: true
+
+# Disable other components
+
+kubeApiServer:
+  enabled: false
+prometheus-node-exporter:
+  enabled: false
+grafana:
+  enabled: false
+alertmanager:
+  enabled: false
+nodeExporter:
+  enabled: false
+kubeStateMetrics:
+  enabled: false
+kubeControllerManager:
+  enabled: false
+coreDns:
+  enabled: false
+kubeEtcd:
+  enabled: false
+kubeProxy:
+  enabled: false
+kubeScheduler:
+  enabled: false
+kubelet:
+  serviceMonitor:
+    enabled: false
+  service:
+    enabled: false
+
+# Disable default ServiceMonitors
+defaultRules:
+  create: false
+
+# Disable additional ServiceMonitors
+additionalServiceMonitors: []

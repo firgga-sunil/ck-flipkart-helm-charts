@@ -1,0 +1,15 @@
+apiVersion: v2
+name: ck-mcp-charts
+description: A Helm chart for ck-mcp-server - Python MCP server for Nexus API integration
+type: application
+version: 1.0.0
+appVersion: "2.0.0"
+keywords:
+  - mcp
+home: https://github.com/codekarma/ck-mcp
+sources:
+  - https://github.com/codekarma/ck-mcp
+maintainers:
+  - name: CodeKarma Team
+    email: team@codekarma.tech
+dependencies: []
