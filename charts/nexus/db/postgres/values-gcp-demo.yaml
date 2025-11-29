@@ -22,7 +22,6 @@ persistence:
   parameters:
     type: pd-ssd
     replication-type: none
-    encrypted: "true"
   size: 10Gi
 
 service:
