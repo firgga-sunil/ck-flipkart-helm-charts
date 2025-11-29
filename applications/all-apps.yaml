@@ -1,26 +1,26 @@
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: storage-classes
-  namespace: argocd
-spec:
-  project: default
-  source:
-    repoURL: "git@github.com:firgga-sunil/ck-flipkart-helm-charts.git"
-    targetRevision: main
-    path: "./charts/storage-classes"
-    helm:
-      valueFiles:
-      - values-gcp.yaml
-  destination:
-    server: "https://kubernetes.default.svc"
-    namespace: kube-system
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-    - CreateNamespace=true
+# apiVersion: argoproj.io/v1alpha1
+# kind: Application
+# metadata:
+#   name: storage-classes
+#   namespace: argocd
+# spec:
+#   project: default
+#   source:
+#     repoURL: "git@github.com:firgga-sunil/ck-flipkart-helm-charts.git"
+#     targetRevision: main
+#     path: "./charts/storage-classes"
+#     helm:
+#       valueFiles:
+#       - values-gcp.yaml
+#   destination:
+#     server: "https://kubernetes.default.svc"
+#     namespace: kube-system
+#   syncPolicy:
+#     automated:
+#       prune: true
+#       selfHeal: true
+#     syncOptions:
+#     - CreateNamespace=true
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
@@ -105,6 +105,30 @@ spec:
     repoURL: "git@github.com:firgga-sunil/ck-flipkart-helm-charts.git"
     targetRevision: main
     path: "./charts/nexus/ck-nexus-charts"
+    helm:
+      valueFiles:
+      - values-gcp-demo.yaml
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: codekarma
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ck-intel-collector
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: "git@github.com:firgga-sunil/ck-flipkart-helm-charts.git"
+    targetRevision: main
+    path: "./charts/ck-intel-collector"
     helm:
       valueFiles:
       - values-gcp-demo.yaml

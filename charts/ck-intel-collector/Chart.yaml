@@ -1,0 +1,10 @@
+apiVersion: v2
+name: ck-intel-collector
+description: Helm chart wrapper for ck-intel-collector using OpenTelemetry Collector Helm chart
+type: application
+version: 0.1.0
+appVersion: "0.126.0"
+dependencies:
+- name: opentelemetry-collector
+  version: 0.126.0
+  repository: https://open-telemetry.github.io/opentelemetry-helm-charts

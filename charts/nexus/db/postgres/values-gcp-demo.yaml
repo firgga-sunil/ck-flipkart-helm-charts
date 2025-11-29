@@ -11,6 +11,17 @@ credentials:
 persistence:
   enabled: true
   storageClass: "pd-ssd"
+  createStorageClass: true
+
+  # GCP-specific StorageClass fields
+  provisioner: pd.csi.storage.gke.io
+  volumeBindingMode: WaitForFirstConsumer
+  isDefault: true
+
+  parameters:
+    type: pd-ssd
+    replication-type: none
+    encrypted: "true"
   size: 10Gi
 
 service:
