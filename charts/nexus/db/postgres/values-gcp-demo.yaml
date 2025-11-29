@@ -10,19 +10,20 @@ credentials:
 
 persistence:
   enabled: true
-  nameOverride: ck-postgres-pvc-gcp
-  storageClass: ckn-gcp-sc
-  createStorageClass: true
+  # nameOverride: ck-postgres-pvc-gcp
+  # storageClass: ckn-gcp-sc
+  # createStorageClass: true
 
-  # GCP-specific StorageClass fields
-  provisioner: pd.csi.storage.gke.io
-  volumeBindingMode: WaitForFirstConsumer
-  isDefault: true
+  # # GCP-specific StorageClass fields
+  # provisioner: pd.csi.storage.gke.io
+  # volumeBindingMode: WaitForFirstConsumer
+  # isDefault: true
 
-  parameters:
-    type: pd-ssd
-    replication-type: none
-    encrypted: "true"
+  # parameters:
+  #   type: pd-ssd
+  #   replication-type: none
+  #   encrypted: "true"
+  existingClaim: ck-postgres-pvc
   size: 10Gi
 
 service:
