@@ -10,7 +10,8 @@ credentials:
 
 persistence:
   enabled: true
-  storageClass: "ck-postgres-pvc"
+  nameOverride: ck-postgres-pvc-gcp
+  storageClass: ckn-gcp-sc
   createStorageClass: true
 
   # GCP-specific StorageClass fields
