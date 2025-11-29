@@ -17,7 +17,7 @@ persistence:
   # GCP-specific StorageClass fields
   provisioner: pd.csi.storage.gke.io
   volumeBindingMode: WaitForFirstConsumer
-  isDefault: true
+  isDefault: false
 
   parameters:
     type: pd-ssd
