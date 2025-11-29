@@ -10,7 +10,7 @@ credentials:
 
 persistence:
   enabled: true
-  storageClass: "pd-ssd"
+  storageClass: "ckn-gcp-sc"
   createStorageClass: true
 
   # GCP-specific StorageClass fields
