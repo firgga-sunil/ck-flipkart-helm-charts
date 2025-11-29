@@ -10,7 +10,7 @@ credentials:
 
 persistence:
   enabled: true
-  storageClass: "pd-ssd"
+  storageClass: "ck-postgres-pvc"
   createStorageClass: true
 
   # GCP-specific StorageClass fields
