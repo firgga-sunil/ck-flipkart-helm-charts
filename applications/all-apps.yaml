@@ -97,54 +97,6 @@ spec:
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: ck-nexus-charts
-  namespace: argocd
-spec:
-  project: default
-  source:
-    repoURL: "git@github.com:firgga-sunil/ck-flipkart-helm-charts.git"
-    targetRevision: main
-    path: "./charts/nexus/ck-nexus-charts"
-    helm:
-      valueFiles:
-      - values-gcp-demo.yaml
-  destination:
-    server: "https://kubernetes.default.svc"
-    namespace: codekarma
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-    - CreateNamespace=true
----
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: ck-intel-collector
-  namespace: argocd
-spec:
-  project: default
-  source:
-    repoURL: "git@github.com:firgga-sunil/ck-flipkart-helm-charts.git"
-    targetRevision: main
-    path: "./charts/ck-intel-collector"
-    helm:
-      valueFiles:
-      - values-gcp-demo.yaml
-  destination:
-    server: "https://kubernetes.default.svc"
-    namespace: codekarma
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-    - CreateNamespace=true
----
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
   name: postgres
   annotations:
     argocd.argoproj.io/sync-wave: "1"
@@ -179,6 +131,54 @@ spec:
     repoURL: "git@github.com:firgga-sunil/ck-flipkart-helm-charts.git"
     targetRevision: main
     path: "./charts/nexus/prometheus"
+    helm:
+      valueFiles:
+      - values-gcp-demo.yaml
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: codekarma
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ck-nexus-charts
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: "git@github.com:firgga-sunil/ck-flipkart-helm-charts.git"
+    targetRevision: main
+    path: "./charts/nexus/ck-nexus-charts"
+    helm:
+      valueFiles:
+      - values-gcp-demo.yaml
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: codekarma
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ck-intel-collector
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: "git@github.com:firgga-sunil/ck-flipkart-helm-charts.git"
+    targetRevision: main
+    path: "./charts/ck-intel-collector"
     helm:
       valueFiles:
       - values-gcp-demo.yaml
