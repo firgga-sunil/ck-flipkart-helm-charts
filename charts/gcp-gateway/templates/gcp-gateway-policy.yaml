@@ -1,0 +1,17 @@
+# GCP Gateway Policy for SSL policy and global access configuration
+apiVersion: networking.gke.io/v1
+kind: GCPGatewayPolicy
+metadata:
+  name: {{ .Values.gateway.gatewayName }}-policy
+  namespace: {{ .Values.gateway.gatewayNamespace }}
+spec:
+  default:
+    allowGlobalAccess: {{ .Values.gatewayPolicy.allowGlobalAccess }}
+    {{- if .Values.sslPolicy }}
+    sslPolicy: {{ .Values.sslPolicy }}
+    {{- end }}
+  targetRef:
+    group: gateway.networking.k8s.io
+    kind: Gateway
+    name: {{ .Values.gateway.gatewayName }}
+

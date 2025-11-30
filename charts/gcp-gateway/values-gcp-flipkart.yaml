@@ -1,0 +1,33 @@
+# GCP Gateway API Configuration for Flipkart
+name: "ck-gateway-gcp-flipkart"
+namespace: "codekarma"
+
+# GCP Gateway Configuration
+gateway:
+  gatewayName: "ck-gateway-gcp-flipkart"
+  gatewayNamespace: "codekarma"
+  gatewayClassName: "gke-l7-rilb"
+  namedAddress: "codekarma-lb"
+
+# SSL Certificate configuration
+certificateId: "www-codekarma-fkcloud-in-1"
+
+# SSL Policy for GCP Gateway Policy
+sslPolicy: "ssl-policy-code-karma-min-tls-version-1-2"
+
+# Domain configuration for routing
+domains:
+  - "codekarma.fkcloud.in"
+
+# Backend service configuration
+backend:
+  serviceName: "ck-ingress-nginx"
+  servicePort: 80
+
+# GCP Gateway Policy configuration
+gatewayPolicy:
+  allowGlobalAccess: true
+
+# GCP specific annotations (if needed)
+annotations: {}
+

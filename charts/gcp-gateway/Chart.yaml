@@ -1,0 +1,7 @@
+apiVersion: v2
+name: ck-gcp-gateway
+description: A Helm chart to deploy a GCP Gateway API for ck-nexus and ck-intel-collector with URL prefix stripping
+type: application
+version: 0.1.0
+appVersion: "1.0"
+

@@ -1,0 +1,39 @@
+# GCP Gateway API for HTTP and HTTPS traffic
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: {{ .Values.gateway.gatewayName }}
+  namespace: {{ .Values.gateway.gatewayNamespace }}
+  {{- if .Values.annotations }}
+  annotations:
+    {{- range $key, $value := .Values.annotations }}
+    {{ $key }}: "{{ $value }}"
+    {{- end }}
+  {{- end }}
+spec:
+  addresses:
+    - type: NamedAddress
+      value: {{ .Values.gateway.namedAddress }}
+  gatewayClassName: {{ .Values.gateway.gatewayClassName }}
+  listeners:
+    # HTTP listener (for redirect to HTTPS)
+    - allowedRoutes:
+        namespaces:
+          from: "All"
+      name: http
+      port: 80
+      protocol: HTTP
+    # HTTPS listener with TLS termination
+    - allowedRoutes:
+        namespaces:
+          from: "All"
+      name: https
+      port: 443
+      protocol: HTTPS
+      {{- if .Values.certificateId }}
+      tls:
+        mode: Terminate
+        options:
+          networking.gke.io/cert-manager-certs: {{ .Values.certificateId }}
+      {{- end }}
+

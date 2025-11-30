@@ -1,0 +1,86 @@
+# HTTPRoute for HTTPS listener (port 443)
+# Routes all HTTPS traffic after SSL termination
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: {{ .Values.name }}-httproute
+  namespace: {{ .Values.namespace }}
+spec:
+  parentRefs:
+    - name: {{ .Values.gateway.gatewayName }}
+      namespace: {{ .Values.gateway.gatewayNamespace }}
+      sectionName: https  # Attached to HTTPS listener (port 443)
+  {{- if .Values.domains }}
+  hostnames:
+    {{- range .Values.domains }}
+    - {{ . | quote }}
+    {{- end }}
+  {{- end }}
+  rules:
+    # ACME challenge path - routes to nginx which returns response for Let's Encrypt validation
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /.well-known/acme-challenge/
+      backendRefs:
+        - name: {{ .Values.backend.serviceName }}
+          port: {{ .Values.backend.servicePort }}
+    # gRPC specific path for metrics collection
+    - matches:
+        - path:
+            type: Exact
+            value: /opentelemetry.proto.collector.metrics.v1.MetricsService/Export
+      backendRefs:
+        - name: {{ .Values.backend.serviceName }}
+          port: {{ .Values.backend.servicePort }}
+    # All other HTTP traffic routes to nginx
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: {{ .Values.backend.serviceName }}
+          port: {{ .Values.backend.servicePort }}
+
+---
+# HTTPRoute for HTTP listener (port 80)
+# Routes HTTP traffic for ACME challenges and redirects to HTTPS
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: {{ .Values.name }}-httproute-http
+  namespace: {{ .Values.namespace }}
+spec:
+  parentRefs:
+    - name: {{ .Values.gateway.gatewayName }}
+      namespace: {{ .Values.gateway.gatewayNamespace }}
+      sectionName: http  # Attached to HTTP listener (port 80)
+  {{- if .Values.domains }}
+  hostnames:
+    {{- range .Values.domains }}
+    - {{ . | quote }}
+    {{- end }}
+  {{- end }}
+  rules:
+    # ACME challenge path - routes to nginx which handles the request and returns response
+    # nginx listens on port 80 and checks hostname matching, then returns response for Let's Encrypt
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /.well-known/acme-challenge/
+      backendRefs:
+        - name: {{ .Values.backend.serviceName }}
+          port: {{ .Values.backend.servicePort }}
+    # All other HTTP traffic - redirect to HTTPS using Gateway API native redirect
+    # Note: port is not supported in RequestRedirect filter for GCP Gateway API
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      filters:
+        - type: RequestRedirect
+          requestRedirect:
+            scheme: https
+            statusCode: 301
+      # No backendRefs - this rule only redirects, doesn't route to backend
+
