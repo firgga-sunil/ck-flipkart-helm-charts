@@ -1,32 +1,10 @@
-# apiVersion: argoproj.io/v1alpha1
-# kind: Application
-# metadata:
-#   name: storage-classes
-#   namespace: argocd
-# spec:
-#   project: default
-#   source:
-#     repoURL: "git@github.com:firgga-sunil/ck-flipkart-helm-charts.git"
-#     targetRevision: main
-#     path: "./charts/storage-classes"
-#     helm:
-#       valueFiles:
-#       - values-gcp.yaml
-#   destination:
-#     server: "https://kubernetes.default.svc"
-#     namespace: kube-system
-#   syncPolicy:
-#     automated:
-#       prune: true
-#       selfHeal: true
-#     syncOptions:
-#     - CreateNamespace=true
----
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: gcp-gateway
   namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
 spec:
   project: default
   source:
@@ -51,6 +29,8 @@ kind: Application
 metadata:
   name: ck-graph-mcp-server
   namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
 spec:
   project: default
   source:
@@ -75,6 +55,8 @@ kind: Application
 metadata:
   name: ck-mcp
   namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
 spec:
   project: default
   source:
@@ -99,6 +81,8 @@ kind: Application
 metadata:
   name: karma-lens
   namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
 spec:
   project: default
   source:
@@ -122,9 +106,9 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: postgres
-  annotations:
-    argocd.argoproj.io/sync-wave: "1"
   namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
 spec:
   project: default
   source:
@@ -149,6 +133,8 @@ kind: Application
 metadata:
   name: prometheus
   namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
 spec:
   project: default
   source:
@@ -173,6 +159,8 @@ kind: Application
 metadata:
   name: ck-nexus-charts
   namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
 spec:
   project: default
   source:
@@ -197,6 +185,8 @@ kind: Application
 metadata:
   name: ck-intel-collector
   namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
 spec:
   project: default
   source:
@@ -220,9 +210,9 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: nginx
-  annotations:
-    argocd.argoproj.io/sync-wave: "1"
   namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
 spec:
   project: default
   source:
