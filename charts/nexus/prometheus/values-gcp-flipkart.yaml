@@ -1,0 +1,170 @@
+# Default values for kube-prometheus-stack - GCP Configuration
+nameOverride: "ck"
+fullnameOverride: "ck"
+
+global:
+  imagePullSecrets:
+  - name: ckn-ghcr-secret
+
+# Prometheus Operator configuration
+prometheusOperator:
+  enabled: true
+  # Configure prometheus-operator image using GHCR (mirrored from quay.io)
+  # Image is mirrored from quay.io to GHCR to avoid timeout issues
+  image:
+    registry: ghcr.io
+    repository: ckgitrepouser/codekarma/infra/prometheus-operator
+    tag: v0.86.2
+    pullPolicy: IfNotPresent
+  # Configure prometheus-config-reloader image using GHCR (mirrored from quay.io)
+  # Image is mirrored from quay.io to GHCR to avoid timeout issues
+  prometheusConfigReloader:
+    image:
+      registry: ghcr.io
+      repository: ckgitrepouser/codekarma/infra/prometheus-config-reloader
+      tag: v0.86.2
+      pullPolicy: IfNotPresent
+  # Enable admission webhooks using GHCR mirrored image
+  # Image is mirrored from registry.k8s.io to GHCR to avoid timeout issues
+  admissionWebhooks:
+    enabled: true
+    # Configure certgen image using GHCR (mirrored from registry.k8s.io)
+    # Split registry and repository to avoid leading slash issue
+    cert:
+      image:
+        registry: ghcr.io
+        repository: ckgitrepouser/codekarma/infra/kube-webhook-certgen
+        tag: v1.6.4
+        pullPolicy: IfNotPresent
+    patch:
+      image:
+        registry: ghcr.io
+        repository: ckgitrepouser/codekarma/infra/kube-webhook-certgen
+        tag: v1.6.4
+        pullPolicy: IfNotPresent
+
+prometheus:
+  enabled: true
+  fullnameOverride: "ck"
+  prometheusSpec:
+    # Custom Prometheus image configuration using GHCR
+    # Using Prometheus v3.7.3 (compatible with prometheus-operator v0.86.2)
+    # Note: 27.39.0 was a Helm chart version, not a Prometheus image version
+    image:
+      registry: ghcr.io
+      repository: ckgitrepouser/codekarma/infra/prometheus
+      tag: v3.7.3
+      pullPolicy: IfNotPresent
+    maximumStartupDurationSeconds: 60
+    podMonitorSelector: {}
+    probeSelector: {}
+    retention: 90d
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: premium-rwo
+          accessModes: [ "ReadWriteOnce" ]
+          resources:
+            requests:
+              storage: 50Gi
+    resources:
+      requests:
+        memory: "4096Mi"
+        cpu: "4000m"
+      limits:
+        memory: "4096Mi"
+        cpu: "4000m"
+    # Node affinity configuration for n2d node type
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+          - matchExpressions:
+            - key: cloud.google.com/machine-family
+              operator: In
+              values:
+              - n2d
+    # GCP-specific tolerations for GKE nodes
+    tolerations:
+    - key: "nodetype"
+      operator: "Equal"
+      value: "n2d"
+      effect: "NoSchedule"
+    securityContext:
+      fsGroup: 2000
+      runAsNonRoot: true
+      runAsUser: 1000
+    # Enable the Admin API
+    enableAdminAPI: true
+  # Service configuration for NodePort access
+  service:
+    type: NodePort
+
+# Disable other components
+# Note: Even though disabled, images are configured for future use
+
+kubeApiServer:
+  enabled: false
+prometheus-node-exporter:
+  enabled: false
+  # Image configuration for node-exporter (if enabled in future)
+  image:
+    registry: ghcr.io
+    repository: ckgitrepouser/codekarma/infra/node-exporter
+    tag: v1.10.2
+    pullPolicy: IfNotPresent
+grafana:
+  enabled: false
+  # Image configuration for grafana (if enabled in future)
+  image:
+    registry: ghcr.io
+    repository: ckgitrepouser/codekarma/infra/grafana
+    tag: 12.3.0
+    pullPolicy: IfNotPresent
+alertmanager:
+  enabled: false
+  # Image configuration for alertmanager (if enabled in future)
+  alertmanagerSpec:
+    image:
+      registry: ghcr.io
+      repository: ckgitrepouser/codekarma/infra/alertmanager
+      tag: v0.29.0
+      pullPolicy: IfNotPresent
+nodeExporter:
+  enabled: false
+  # Image configuration for node-exporter (if enabled in future)
+  image:
+    registry: ghcr.io
+    repository: ckgitrepouser/codekarma/infra/node-exporter
+    tag: v1.10.2
+    pullPolicy: IfNotPresent
+kubeStateMetrics:
+  enabled: false
+  # Image configuration for kube-state-metrics (if enabled in future)
+  image:
+    registry: ghcr.io
+    repository: ckgitrepouser/codekarma/infra/kube-state-metrics
+    tag: v2.17.0
+    pullPolicy: IfNotPresent
+kubeControllerManager:
+  enabled: false
+coreDns:
+  enabled: false
+kubeEtcd:
+  enabled: false
+kubeProxy:
+  enabled: false
+kubeScheduler:
+  enabled: false
+kubelet:
+  serviceMonitor:
+    enabled: false
+  service:
+    enabled: false
+
+# Disable default ServiceMonitors
+defaultRules:
+  create: false
+
+# Disable additional ServiceMonitors
+additionalServiceMonitors: []
