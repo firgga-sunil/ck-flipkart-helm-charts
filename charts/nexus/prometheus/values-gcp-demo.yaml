@@ -2,6 +2,16 @@
 nameOverride: "ck"
 fullnameOverride: "ck"
 
+prometheusOperator:
+  enabled: true
+  # Configure prometheus-operator image using GHCR (mirrored from quay.io)
+  # Image is mirrored from quay.io to GHCR to avoid timeout issues
+  image:
+    registry: ghcr.io
+    repository: ckgitrepouser/codekarma/infra/prometheus-operator
+    tag: v0.86.2
+    pullPolicy: IfNotPresent
+
 prometheus:
   enabled: true
   fullnameOverride: "ck"
@@ -14,7 +24,7 @@ prometheus:
       volumeClaimTemplate:
         spec:
           storageClassName: pd-ssd
-          accessModes: ["ReadWriteOnce"]
+          accessModes: [ "ReadWriteOnce" ]
           resources:
             requests:
               storage: 8Gi
@@ -26,11 +36,11 @@ prometheus:
         memory: "512Mi"
         cpu: "500m"
     # GCP-specific tolerations for GKE nodes
-#    tolerations:
-#      - key: "nodetype"
-#        operator: "Equal"
-#        value: "db-monitoring-node"
-#        effect: "NoSchedule"
+    #    tolerations:
+    #      - key: "nodetype"
+    #        operator: "Equal"
+    #        value: "db-monitoring-node"
+    #        effect: "NoSchedule"
     # Add node affinity to ensure proper scheduling
     securityContext:
       fsGroup: 2000
