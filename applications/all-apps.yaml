@@ -134,6 +134,7 @@ metadata:
   name: prometheus
   namespace: argocd
   annotations:
+    argocd.argoproj.io/include-crds: "true"
     argocd.argoproj.io/sync-wave: "0"
 spec:
   project: default
