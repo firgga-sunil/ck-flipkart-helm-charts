@@ -158,9 +158,9 @@ kubeScheduler:
   enabled: false
 kubelet:
   serviceMonitor:
-    enabled: false
+    enabled: true
   service:
-    enabled: false
+    enabled: true
 
 # Disable default ServiceMonitors
 defaultRules:
