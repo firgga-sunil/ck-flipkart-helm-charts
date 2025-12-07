@@ -144,7 +144,7 @@ spec:
     path: "./charts/nexus/prometheus"
     helm:
       valueFiles:
-      - values-gcp-demo.yaml
+      - values-gcp-flipkart.yaml
   destination:
     server: "https://kubernetes.default.svc"
     namespace: codekarma
@@ -154,6 +154,7 @@ spec:
       selfHeal: true
     syncOptions:
     - CreateNamespace=true
+    - ServerSideApply=true 
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
