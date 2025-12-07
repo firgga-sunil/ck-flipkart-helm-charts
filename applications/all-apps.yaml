@@ -144,7 +144,7 @@ spec:
     path: "./charts/nexus/prometheus"
     helm:
       valueFiles:
-      - values-gcp-flipkart.yaml
+      - values-gcp-demo.yaml
   destination:
     server: "https://kubernetes.default.svc"
     namespace: codekarma
