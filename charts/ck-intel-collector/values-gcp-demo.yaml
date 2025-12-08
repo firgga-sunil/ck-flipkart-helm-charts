@@ -1,15 +1,15 @@
-# top-level values used by your wrapper chart templates
-serviceAccount:
-  create: true
-  name: ""
-  annotations: {}
-  automountServiceAccountToken: true  # only if your template uses this
+# # top-level values used by your wrapper chart templates
+# serviceAccount:
+#   create: true
+#   name: ""
+#   annotations: {}
+#   automountServiceAccountToken: true  # only if your template uses this
 
-prometheusRule:
-  enabled: false
+# prometheusRule:
+#   enabled: false
 
-podMonitor:
-  enabled: false
+# podMonitor:
+#   enabled: false
 
 # values passed down to the dependency chart "opentelemetry-collector"
 opentelemetry-collector:
@@ -28,10 +28,10 @@ opentelemetry-collector:
     type: ClusterIP
     enabled: true
 
-  serviceAccount:
-    create: true
-    name: ""
-    annotations: {}
+  # serviceAccount:
+  #   create: true
+  #   name: ""
+  #   annotations: {}
 
   ports:
     otlp:
