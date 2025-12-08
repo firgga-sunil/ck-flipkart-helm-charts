@@ -62,7 +62,7 @@ kube-prometheus-stack:
       storageSpec:
         volumeClaimTemplate:
           spec:
-            storageClassName: premium-rwo
+            storageClassName: standard   #this was premium rwo earlier
             accessModes: ["ReadWriteOnce"]
             resources:
               requests:
