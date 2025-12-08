@@ -110,10 +110,12 @@ config:
         - header_name: "ck-domain"
           attribute_name: "ck_domain"
 
-    # either keep them as {} to avoid warnings...
-    jaeger: {}
+    # NOTE (updated for custom collector build):
+    # The binary only supports 'otlp' as a receiver. 'jaeger' and 'prometheus'
+    # receivers are not compiled in this build, so they must be disabled.
+    # jaeger: {}
     # zipkin: {}   #removing this to make the app work
-    prometheus: {}
+    # prometheus: {}
 
   processors:
     batch: {}
@@ -121,8 +123,11 @@ config:
       # timeout: 1m
       # send_batch_size: 16384
 
+    # NOTE (updated for custom collector build):
+    # 'memory_limiter' processor is not compiled into this binary. Keeping it
+    # enabled causes "unknown type: memory_limiter" errors, so it is disabled.
     # ...and keep memory_limiter as an empty table
-    memory_limiter: {}
+    # memory_limiter: {}
 
     metricsaggregator:
       group_by_labels:
