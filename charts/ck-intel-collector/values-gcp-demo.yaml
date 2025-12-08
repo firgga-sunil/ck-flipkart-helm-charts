@@ -112,13 +112,14 @@ config:
 
     # either keep them as {} to avoid warnings...
     jaeger: {}
-    zipkin: {}
+    # zipkin: {}   #removing this to make the app work
     prometheus: {}
 
   processors:
-    batch:
-      timeout: 1m
-      send_batch_size: 16384
+    batch: {}
+      # commented this to make the app work
+      # timeout: 1m
+      # send_batch_size: 16384
 
     # ...and keep memory_limiter as an empty table
     memory_limiter: {}
