@@ -26,7 +26,6 @@ opentelemetry-collector:
     create: true
     name: ""
     annotations: {}
-    automountServiceAccountToken: true
 
   ports:
     otlp:
