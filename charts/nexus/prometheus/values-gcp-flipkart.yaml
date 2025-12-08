@@ -47,7 +47,7 @@ kube-prometheus-stack:
 
   prometheus:
     enabled: true
-    fullnameOverride: "ck"
+    fullnameOverride: "ck-prometheus"
     prometheusSpec:
       image:
         registry: ghcr.io
@@ -62,7 +62,7 @@ kube-prometheus-stack:
       storageSpec:
         volumeClaimTemplate:
           spec:
-            storageClassName: premium-rwo
+            storageClassName: ckn-gcp-sc  #earlier it was premium-rwo, we will reset this
             accessModes: ["ReadWriteOnce"]
             resources:
               requests:
