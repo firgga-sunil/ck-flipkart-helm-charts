@@ -8,6 +8,9 @@ serviceAccount:
 prometheusRule:
   enabled: false
 
+podMonitor:
+  enabled: false
+
 # values passed down to the dependency chart "opentelemetry-collector"
 opentelemetry-collector:
   image:
