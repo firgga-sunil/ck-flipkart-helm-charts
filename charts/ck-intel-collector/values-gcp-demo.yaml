@@ -14,6 +14,12 @@ opentelemetry-collector:
     type: ClusterIP
     enabled: true
 
+  serviceAccount:
+    create: true          # or false if you will use an existing SA
+    name: ""              # or "my-existing-sa" if create=false
+    annotations: {}
+    automountServiceAccountToken: true
+
   ports:
     otlp:
       enabled: true
