@@ -5,6 +5,9 @@ serviceAccount:
   annotations: {}
   automountServiceAccountToken: true  # only if your template uses this
 
+prometheusRule:
+  enabled: false
+
 # values passed down to the dependency chart "opentelemetry-collector"
 opentelemetry-collector:
   image:
