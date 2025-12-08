@@ -1,3 +1,11 @@
+# top-level values used by your wrapper chart templates
+serviceAccount:
+  create: true
+  name: ""
+  annotations: {}
+  automountServiceAccountToken: true  # only if your template uses this
+
+# values passed down to the dependency chart "opentelemetry-collector"
 opentelemetry-collector:
   image:
     repository: "ghcr.io/ckgitrepouser/gcp-demo/ck-intel-collector"
@@ -15,8 +23,8 @@ opentelemetry-collector:
     enabled: true
 
   serviceAccount:
-    create: true          # or false if you will use an existing SA
-    name: ""              # or "my-existing-sa" if create=false
+    create: true
+    name: ""
     annotations: {}
     automountServiceAccountToken: true
 
@@ -27,13 +35,11 @@ opentelemetry-collector:
       servicePort: 4319
       protocol: TCP
       appProtocol: grpc
-
     metrics:
       enabled: true
       containerPort: 8889
       servicePort: 8889
       protocol: TCP
-
     otlp-http:
       enabled: false
     jaeger-compact:
@@ -99,16 +105,18 @@ opentelemetry-collector:
           - header_name: "ck-domain"
             attribute_name: "ck_domain"
 
-      jaeger: null
-      zipkin: null
-      prometheus: null
+      # either keep them as {} to avoid warnings...
+      jaeger: {}
+      zipkin: {}
+      prometheus: {}
 
     processors:
       batch:
         timeout: 1m
         send_batch_size: 16384
 
-      memory_limiter: null
+      # ...and keep memory_limiter as an empty table
+      memory_limiter: {}
 
       metricsaggregator:
         group_by_labels:
@@ -122,7 +130,7 @@ opentelemetry-collector:
         - "fc"
         - "flow_id"
         - "quantile"
-        #- "ck_domain"
+        - "ck_domain"
 
         output_resource_attributes:
           otel_output_metric: "true"
@@ -184,11 +192,11 @@ opentelemetry-collector:
         verbosity: detailed
 
     service:
-      extensions: [ health_check ]
+      extensions: [health_check]
       pipelines:
         metrics:
-          receivers: [ otlp ]
-          processors: [ batch, metricsaggregator ]
-          exporters: [ prometheus, debug ]
+          receivers: [otlp]
+          processors: [batch, metricsaggregator]
+          exporters: [prometheus, debug]
         logs: null
         traces: null
