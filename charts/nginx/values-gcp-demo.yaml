@@ -14,7 +14,7 @@ upstreamServices:
     service: ck-nexus-app
     port: 8081
   collector:
-    service: ck-intel-collector-opentelemetry-collector
+    service: ck-intel-collector
     port: 4319
   karmaLens:
     service: karma-lens
