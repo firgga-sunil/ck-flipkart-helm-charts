@@ -83,12 +83,12 @@ kube-prometheus-stack:
                   - key: cloud.google.com/machine-family
                     operator: In
                     values:
-                      - n2d
+                      - e2
 
       tolerations:
         - key: "nodetype"
           operator: "Equal"
-          value: "n2d"
+          value: "e2"
           effect: "NoSchedule"
 
       securityContext:
