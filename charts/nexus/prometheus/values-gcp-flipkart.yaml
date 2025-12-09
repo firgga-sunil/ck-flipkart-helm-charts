@@ -62,7 +62,7 @@ kube-prometheus-stack:
       storageSpec:
         volumeClaimTemplate:
           spec:
-            storageClassName: ckn-gcp-sc  #earlier it was premium-rwo, we will reset this
+            storageClassName: premium-rwo
             accessModes: ["ReadWriteOnce"]
             resources:
               requests:
