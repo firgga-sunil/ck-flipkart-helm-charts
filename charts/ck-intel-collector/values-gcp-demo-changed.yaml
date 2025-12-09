@@ -1,0 +1,213 @@
+# # top-level values used by your wrapper chart templates
+# serviceAccount:
+#   create: true
+#   name: ""
+#   annotations: {}
+#   automountServiceAccountToken: true  # only if your template uses this
+
+# prometheusRule:
+#   enabled: false
+
+# podMonitor:
+#   enabled: false
+
+# values passed down to the dependency chart "opentelemetry-collector"
+# opentelemetry-collector:
+image:
+  repository: "ghcr.io/ckgitrepouser/gcp-demo/ck-intel-collector"
+  tag: "latest"
+  pullPolicy: Always
+
+mode: deployment
+replicaCount: 1
+
+imagePullSecrets:
+- name: ckn-ghcr-secret
+
+service:
+  type: ClusterIP
+  enabled: true
+
+# serviceAccount:
+#   create: true
+#   name: ""
+#   annotations: {}
+
+ports:
+  otlp:
+    enabled: true
+    containerPort: 4319
+    servicePort: 4319
+    protocol: TCP
+    appProtocol: grpc
+  metrics:
+    enabled: true
+    containerPort: 8889
+    servicePort: 8889
+    protocol: TCP
+  otlp-http:
+    enabled: false
+  jaeger-compact:
+    enabled: false
+  jaeger-thrift:
+    enabled: false
+  jaeger-grpc:
+    enabled: false
+  zipkin:
+    enabled: false
+
+resources:
+  limits:
+    cpu: 1
+    memory: 1Gi
+  requests:
+    cpu: 200m
+    memory: 400Mi
+
+serviceMonitor:
+  enabled: true
+  endpoints:
+  - port: metrics
+    interval: 30s
+    path: /metrics
+  extraLabels:
+    app.kubernetes.io/name: otel-collector
+    app: ck-otel-collector
+    release: ckp
+
+livenessProbe:
+  httpGet:
+    path: /
+    port: 13134
+  initialDelaySeconds: 5
+  periodSeconds: 20
+
+readinessProbe:
+  httpGet:
+    path: /
+    port: 13134
+  initialDelaySeconds: 5
+  periodSeconds: 10
+
+config:
+  extensions:
+    health_check:
+      endpoint: "0.0.0.0:13134"
+
+  receivers:
+    otlp:
+      protocols:
+        grpc:
+          endpoint: "0.0.0.0:4319"
+          include_metadata: true
+        http:
+          endpoint: "0.0.0.0:4318"
+          include_metadata: true
+
+      header_extraction:
+        enabled: true
+        headers_to_extract:
+        - header_name: "ck-domain"
+          attribute_name: "ck_domain"
+
+    # NOTE (updated for custom collector build):
+    # The binary only supports 'otlp' as a receiver. 'jaeger' and 'prometheus'
+    # receivers are not compiled in this build, so they must be disabled.
+    # jaeger: {}
+    # zipkin: {}   #removing this to make the app work
+    # prometheus: {}
+
+  processors:
+    batch: {}
+      # commented this to make the app work
+      # timeout: 1m
+      # send_batch_size: 16384
+
+    # NOTE (updated for custom collector build):
+    # 'memory_limiter' processor is not compiled into this binary. Keeping it
+    # enabled causes "unknown type: memory_limiter" errors, so it is disabled.
+    # ...and keep memory_limiter as an empty table
+    # memory_limiter: {}
+
+    metricsaggregator:
+      group_by_labels:
+      - "ck_service_name"
+      - "agent_version"
+      - "ck_namespace"
+      - "ck_cluster_name"
+      - "path_key"
+      - "error_code"
+      - "mpk"
+      - "fc"
+      - "flow_id"
+      - "quantile"
+      - "ck_domain"
+
+      output_resource_attributes:
+        otel_output_metric: "true"
+        otel_output_processor: "metricsaggregator"
+
+      aggregation_rules:
+      - metric_pattern: "ck_graph_throughput"
+        match_type: "strict"
+        output_metric_name: "ck_graph_throughput"
+        aggregation_type: "sum"
+        preserve_original_metrics: false
+        output_metric_type: "sum"
+
+      - metric_pattern: "ck_graph_error_count"
+        match_type: "strict"
+        output_metric_name: "ck_graph_error_count"
+        aggregation_type: "sum"
+        preserve_original_metrics: false
+        output_metric_type: "sum"
+
+      - metric_pattern: "ck_graph_latency"
+        match_type: "strict"
+        output_metric_name: "ck_graph_latency_nanoseconds"
+        aggregation_type: "mean"
+        preserve_original_metrics: false
+        output_metric_type: "gauge"
+
+      - metric_pattern: "ck_cpu_utilization_percent"
+        match_type: "strict"
+        output_metric_name: "ck_cpu_utilization_percent"
+        aggregation_type: "max"
+        preserve_original_metrics: false
+        output_metric_type: "gauge"
+
+      - metric_pattern: "ck_method_throughput"
+        match_type: "strict"
+        output_metric_name: "ck_method_throughput"
+        aggregation_type: "sum"
+        preserve_original_metrics: false
+        output_metric_type: "sum"
+
+      - metric_pattern: "ck_method_error_count"
+        match_type: "strict"
+        output_metric_name: "ck_method_error_count"
+        aggregation_type: "sum"
+        preserve_original_metrics: false
+        output_metric_type: "sum"
+
+  exporters:
+    prometheus:
+      endpoint: "0.0.0.0:8889"
+      send_timestamps: true
+      metric_expiration: 180m
+      enable_cleanup_api: true
+      resource_to_telemetry_conversion:
+        enabled: true
+
+    debug:
+      verbosity: detailed
+
+  service:
+    extensions: [health_check]
+    pipelines:
+      metrics:
+        receivers: [otlp]
+        processors: [batch, metricsaggregator]
+        exporters: [prometheus, debug]
+      logs: null
+      traces: null
