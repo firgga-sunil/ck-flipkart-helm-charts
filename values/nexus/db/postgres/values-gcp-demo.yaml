@@ -1,7 +1,15 @@
+# image:
+#   repository: bitnamilegacy/postgresql
+#   tag: "15.2.0"
+#   pullPolicy: IfNotPresent
+
 image:
-  repository: bitnamilegacy/postgresql
-  tag: "15.2.0"
-  pullPolicy: IfNotPresent
+  repository: "ghcr.io/ckgitrepouser/prod/ck-nexus/postgres"
+  tag: "latest"
+  pullPolicy: Always
+
+imagePullSecrets:
+- name: ckn-ghcr-secret
 
 credentials:
   username: cknexus
