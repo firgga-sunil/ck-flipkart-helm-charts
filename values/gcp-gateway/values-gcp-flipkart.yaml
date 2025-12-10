@@ -10,14 +10,14 @@ gateway:
   namedAddress: "codekarma-lb"
 
 # SSL Certificate configuration
-certificateId: "www-codekarma-fkcloud-in-1"
+certificateId: "www-codekarma-fkcloud-in-2"
 
 # SSL Policy for GCP Gateway Policy
 sslPolicy: "ssl-policy-code-karma-min-tls-version-1-2"
 
 # Domain configuration for routing
 domains:
-  - "codekarma.fkcloud.in"
+- "codekarma.fkcloud.in"
 
 # Backend service configuration
 backend:
@@ -30,4 +30,3 @@ gatewayPolicy:
 
 # GCP specific annotations (if needed)
 annotations: {}
-
