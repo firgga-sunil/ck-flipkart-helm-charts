@@ -9,6 +9,9 @@ credentials:
   password: cknexus
   database: ckservicedb
 
+imagePullSecrets:
+- name: ckn-ghcr-secret
+
 persistence:
   enabled: true
   storageClass: "standard"
