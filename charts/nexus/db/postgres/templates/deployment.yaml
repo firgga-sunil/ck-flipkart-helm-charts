@@ -15,13 +15,6 @@ spec:
       securityContext:
         runAsUser: 1001
         fsGroup: 1001
-      {{- if .Values.imagePullSecrets }}
-      imagePullSecrets:
-      {{- range .Values.imagePullSecrets }}
-        - name: {{ .name }}
-      {{- end }}
-      {{- end }}
-      
       {{- if and .Values.nodeAffinity .Values.nodeAffinity.enabled }}
       affinity:
         nodeAffinity:
@@ -43,30 +36,14 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - containerPort: {{ .Values.service.port }}
-          env:
-            - name: POSTGRES_USER
-              valueFrom:
-                secretKeyRef:
-                  name: ck-postgres-secret
-                  key: username
-
-            - name: POSTGRES_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: ck-postgres-secret
-                  key: password
-
-            - name: POSTGRES_DB
-              valueFrom:
-                secretKeyRef:
-                  name: ck-postgres-secret
-                  key: database
-
+          envFrom:
+            - secretRef:
+                name: ck-postgres-secret
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
             - name: postgres-data
-              mountPath: /var/lib/postgresql/data
+              mountPath: /bitnami/postgresql/
             - name: init-scripts
               mountPath: /docker-entrypoint-initdb.d
       volumes:
