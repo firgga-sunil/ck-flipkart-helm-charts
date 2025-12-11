@@ -4,8 +4,7 @@
 #   pullPolicy: IfNotPresent
 
 image:
-  registry: ghcr.io
-  repository: "ckgitrepouser/prod/ck-nexus/postgres"
+  repository: "ghcr.io/ckgitrepouser/prod/ck-nexus/postgres"
   tag: "latest"
   pullPolicy: Always
 
