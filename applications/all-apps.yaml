@@ -117,7 +117,7 @@ spec:
     path: "./charts/nexus/db/postgres"
     helm:
       valueFiles:
-      - ../../values/nexus/db/postgres/values-gcp-demo.yaml
+      - ../../../values/nexus/db/postgres/values-gcp-demo.yaml
   destination:
     server: "https://kubernetes.default.svc"
     namespace: codekarma
@@ -171,7 +171,7 @@ spec:
     path: "./charts/nexus/ck-nexus-charts"
     helm:
       valueFiles:
-      - ../../values/nexus/ck-nexus-charts/values-gcp-demo.yaml
+      - ../../../values/nexus/ck-nexus-charts/values-gcp-demo.yaml
   destination:
     server: "https://kubernetes.default.svc"
     namespace: codekarma
