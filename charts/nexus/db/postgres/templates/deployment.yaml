@@ -12,6 +12,10 @@ spec:
       labels:
         app: ck-postgres
     spec:
+{{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+{{ toYaml .Values.imagePullSecrets | indent 8 }}
+{{- end }}
       securityContext:
         runAsUser: 1001
         fsGroup: 1001
