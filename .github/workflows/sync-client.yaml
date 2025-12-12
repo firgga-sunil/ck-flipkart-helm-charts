@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }} # token with repo scopes OR GitHub App token
-      ORG: codekarma
+      ORG: firgga-sunil
       PARENT_REPO: ${{ github.repository }}   # the template repo
     steps:
       - name: Check out parent repo
