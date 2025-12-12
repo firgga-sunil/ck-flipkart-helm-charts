@@ -3,14 +3,13 @@ image:
   repository: bitnamilegacy/postgresql
   tag: "15.3.0"
   pullPolicy: IfNotPresent
+imagePullSecrets: []
 
 credentials:
   username: cknexus
   password: cknexus
   database: ckservicedb
 
-imagePullSecrets:
-- name: ckn-ghcr-secret
 
 persistence:
   enabled: true
