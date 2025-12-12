@@ -35,7 +35,7 @@ jobs:
 
       - name: Run sync script
         run: |
-          chmod +x .github/scripts/sync-client.sh
+          chmod +x .github/scripts-repo/sync-client.sh
           .github/scripts/sync-client.sh "${{ github.event.inputs.client }}" "${{ github.event.inputs.auto_merge }}" "${{ env.ORG }}" "${{ env.PARENT_REPO }}" "${{ secrets.PERSONAL_ACCESS_TOKEN }}"
         env:
           GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
