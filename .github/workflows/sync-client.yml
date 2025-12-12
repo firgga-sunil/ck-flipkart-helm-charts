@@ -1,0 +1,41 @@
+name: Sync client from template
+
+on:
+  workflow_dispatch:
+    inputs:
+      client:
+        description: 'Client name to sync (eg: flipkart, phonepe)'
+        required: true
+      auto_merge:
+        description: 'Auto-merge PR if checks pass'
+        required: false
+        default: 'false'
+
+permissions:
+  contents: write   # to push branches to child repos
+  pull-requests: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }} # token with repo scopes OR GitHub App token
+      ORG: codekarma
+      PARENT_REPO: ${{ github.repository }}   # the template repo
+    steps:
+      - name: Check out parent repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Install git & rsync
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y rsync jq
+
+      - name: Run sync script
+        run: |
+          chmod +x .github/scripts/sync-client.sh
+          .github/scripts/sync-client.sh "${{ github.event.inputs.client }}" "${{ github.event.inputs.auto_merge }}" "${{ env.ORG }}" "${{ env.PARENT_REPO }}" "${{ secrets.PERSONAL_ACCESS_TOKEN }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
