@@ -1,1 +1,7 @@
 scripts/
+delete_ghcr_images_by_tag.sh
+mirror-images-ghcr.sh
+mirror_postgres_bitnami.sh
+mirror_multiarch.sh
+mirror_postgres_manas.sh
+validate_mirrors.sh
