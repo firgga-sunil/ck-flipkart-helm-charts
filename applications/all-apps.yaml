@@ -154,7 +154,7 @@ spec:
       selfHeal: true
     syncOptions:
     - CreateNamespace=true
-    - ServerSideApply=true 
+    - ServerSideApply=true
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
@@ -197,7 +197,7 @@ spec:
     path: "./charts/ck-intel-collector"
     helm:
       valueFiles:
-      - ../../values/ck-intel-collector/values-gcp-demo.yaml
+      - ../../values/flipkart/ck-intel-collector/values-gcp-demo.yaml
   destination:
     server: "https://kubernetes.default.svc"
     namespace: codekarma
