@@ -13,7 +13,7 @@ spec:
     path: "./charts/gcp-gateway"
     helm:
       valueFiles:
-      - ../../values/gcp-gateway/values-gcp-flipkart.yaml
+      - ../../values/flipkart/gcp-gateway/values-gcp-flipkart.yaml
   destination:
     server: "https://kubernetes.default.svc"
     namespace: codekarma
@@ -91,7 +91,7 @@ spec:
     path: "./charts/karma-lens"
     helm:
       valueFiles:
-      - ../../values/karma-lens/values-prod.yaml
+      - ../../values/flipkart/karma-lens/values-prod.yaml
   destination:
     server: "https://kubernetes.default.svc"
     namespace: codekarma
@@ -117,7 +117,7 @@ spec:
     path: "./charts/nexus/db/postgres"
     helm:
       valueFiles:
-      - ../../../../values/nexus/db/postgres/values-gcp-demo.yaml
+      - ../../../../values/flipkart/nexus/db/postgres/values-gcp-demo.yaml
   destination:
     server: "https://kubernetes.default.svc"
     namespace: codekarma
@@ -144,7 +144,7 @@ spec:
     path: "./charts/nexus/prometheus"
     helm:
       valueFiles:
-      - ../../../values/nexus/prometheus/values-gcp-flipkart.yaml
+      - ../../../values/flipkart/nexus/prometheus/values-gcp-flipkart.yaml
   destination:
     server: "https://kubernetes.default.svc"
     namespace: codekarma
@@ -171,7 +171,7 @@ spec:
     path: "./charts/nexus/ck-nexus-charts"
     helm:
       valueFiles:
-      - ../../../values/nexus/ck-nexus-charts/values-gcp-demo.yaml
+      - ../../../values/flipkart/nexus/ck-nexus-charts/values-gcp-demo.yaml
   destination:
     server: "https://kubernetes.default.svc"
     namespace: codekarma
@@ -223,7 +223,7 @@ spec:
     path: "./charts/nginx"
     helm:
       valueFiles:
-      - ../../values/nginx/values-gcp-demo.yaml
+      - ../../values/flipkart/nginx/values-gcp-demo.yaml
   destination:
     server: "https://kubernetes.default.svc"
     namespace: codekarma
