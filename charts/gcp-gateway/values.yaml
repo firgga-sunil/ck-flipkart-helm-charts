@@ -1,0 +1,54 @@
+# GCP Gateway API Configuration
+# This file contains all possible configuration keys with example values
+# Override specific values using --set flags or environment-specific overrides
+
+# Required values
+name: "ck-gateway-gcp"
+namespace: "codekarma"
+
+# GCP Gateway Configuration
+gateway:
+  # Gateway name (used in metadata.name)
+  gatewayName: "ck-gateway-gcp"
+  # Gateway namespace (usually same as namespace)
+  gatewayNamespace: "codekarma"
+  # Gateway class name for GCP
+  gatewayClassName: "gke-l7-rilb"
+      # Named address for static IP (GCP reserved address name)
+      # Examples:
+      #   - "codekarma-lb" (flipkart)
+      #   - "ck-fk-gcp-alb-static-ip" (ckqa)
+      namedAddress: "codekarma-lb"
+
+# SSL Certificate configuration
+    # Certificate ID from cert-manager (networking.gke.io/cert-manager-certs)
+    # Examples:
+    #   - "www-codekarma-fkcloud-in-1" (flipkart)
+    #   - "ck-fk-ingress-gcp-alb-ssl-cert" (ckqa)
+    certificateId: "www-codekarma-fkcloud-in-1"
+
+# SSL Policy for GCP Gateway Policy
+sslPolicy: "ssl-policy-code-karma-min-tls-version-1-2"
+
+    # Domain configuration for routing
+    # Examples:
+    #   Flipkart: ["codekarma.fkcloud.in"]
+    #   CKQA: ["fkapi.codekarma.tech", "fkapp.codekarma.tech"]
+    domains:
+      - "codekarma.fkcloud.in"
+
+# Backend service configuration
+backend:
+  serviceName: "ck-ingress-nginx"
+  servicePort: 80
+
+# GCP Gateway Policy configuration
+gatewayPolicy:
+  allowGlobalAccess: true
+
+# GCP specific annotations (if needed)
+# Examples:
+#   annotations:
+#     cloud.google.com/load-balancer-type: "External"
+#     cloud.google.com/network-tier: "Premium"
+annotations: {}
