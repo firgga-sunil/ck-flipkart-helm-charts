@@ -7,11 +7,10 @@ gateway:
   gatewayName: "ck-gateway-gcp-flipkart"
   gatewayNamespace: "codekarma"
   gatewayClassName: "gke-l7-rilb"
-  # gatewayClassName: "gke-l7-global-external-managed"
   namedAddress: "codekarma-lb"
 
 # SSL Certificate configuration
-certificateId: "www-codekarma-fkcloud-in-2"
+# certificateId: "www-codekarma-fkcloud-in-2"
 
 # SSL Policy for GCP Gateway Policy
 sslPolicy: "ssl-policy-code-karma-min-tls-version-1-2"
@@ -19,7 +18,6 @@ sslPolicy: "ssl-policy-code-karma-min-tls-version-1-2"
 # Domain configuration for routing
 domains:
 - "ckfkptest.fkcloud.in"
-# - "ckfkptest.duckdns.org"
 
 # Backend service configuration
 backend:
