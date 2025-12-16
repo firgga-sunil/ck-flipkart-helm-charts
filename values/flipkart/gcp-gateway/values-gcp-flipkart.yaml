@@ -10,7 +10,7 @@ gateway:
   namedAddress: "codekarma-lb"
 
 # SSL Certificate configuration
-certificateId: "www-codekarma-fkcloud-in-2"
+certificateId: "www-codekarma-fkcloud-in-3"
 
 # SSL Policy for GCP Gateway Policy
 sslPolicy: "ssl-policy-code-karma-min-tls-version-1-2"
