@@ -4,8 +4,8 @@
 #   pullPolicy: IfNotPresent
 
 image:
-  repository: "ghcr.io/ckgitrepouser/prod/ck-nexus/postgres"
-  tag: "15.3.0"
+  repository: "ghcr.io/ckgitrepouser/prod/ck-nexus/bitnamilegacy/postgresql:"
+  tag: "latest"
   pullPolicy: Always
 
 imagePullSecrets:
