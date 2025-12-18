@@ -4,7 +4,7 @@
 #   pullPolicy: IfNotPresent
 
 image:
-  repository: "ghcr.io/ckgitrepouser/prod/ck-nexus/bitnamilegacy/postgresql:"
+  repository: "ghcr.io/ckgitrepouser/prod/ck-nexus/bitnamilegacy/postgresql"
   tag: "latest"
   pullPolicy: Always
 
