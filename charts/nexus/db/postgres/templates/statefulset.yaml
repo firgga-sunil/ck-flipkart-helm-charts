@@ -99,7 +99,7 @@ metadata:
   name: ck-postgres
 spec:
   serviceName: ck-postgres
-  replicas: 2  # 1 primary + 1 replica
+  replicas: 2
   selector:
     matchLabels:
       app: ck-postgres
@@ -111,7 +111,7 @@ spec:
       securityContext:
         runAsUser: 1001
         fsGroup: 1001
-{{- if and .Values.nodeAffinity .Values.nodeAffinity.enabled }}
+      {{- if and .Values.nodeAffinity .Values.nodeAffinity.enabled }}
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
@@ -121,15 +121,15 @@ spec:
                     operator: In
                     values:
                       - {{ .Values.nodeAffinity.nodeType }}
-{{- end }}
-{{- if .Values.tolerations }}
+      {{- end }}
+      {{- if .Values.tolerations }}
       tolerations:
-        {{- toYaml .Values.tolerations | nindent 8 }}
-{{- end }}
-{{- if .Values.imagePullSecrets }}
+{{ toYaml .Values.tolerations | indent 8 }}
+      {{- end }}
+      {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
-        {{- toYaml .Values.imagePullSecrets | nindent 8 }}
-{{- end }}
+{{ toYaml .Values.imagePullSecrets | indent 8 }}
+      {{- end }}
       volumes:
         - name: init-scripts
           configMap:
@@ -145,7 +145,6 @@ spec:
             - |
               POD_ORDINAL=$(echo $HOSTNAME | grep -o '[0-9]*$')
               echo "Pod ordinal: $POD_ORDINAL"
-              
               if [ "$POD_ORDINAL" = "0" ]; then
                 echo "Setting up as PRIMARY"
                 echo "export POSTGRESQL_REPLICATION_MODE=master" > /tmp/replication-mode.sh
@@ -154,7 +153,6 @@ spec:
                 echo "export POSTGRESQL_REPLICATION_MODE=slave" > /tmp/replication-mode.sh
                 echo "export POSTGRESQL_MASTER_HOST=ck-postgres-0.ck-postgres" >> /tmp/replication-mode.sh
               fi
-              
               cat /tmp/replication-mode.sh
           volumeMounts:
             - name: replication-config
@@ -185,7 +183,7 @@ spec:
               fi
               /opt/bitnami/scripts/postgresql/entrypoint.sh /opt/bitnami/scripts/postgresql/run.sh
           resources:
-            {{- toYaml .Values.resources | nindent 12 }}
+{{ toYaml .Values.resources | indent 12 }}
           volumeMounts:
             - name: postgres-data
               mountPath: /bitnami/postgresql/
