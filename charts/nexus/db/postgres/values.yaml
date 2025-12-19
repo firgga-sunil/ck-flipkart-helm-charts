@@ -22,7 +22,6 @@ persistence:
   size: 8Gi
 
 service:
-  type: ClusterIP
   port: 5432
 
 resources:
