@@ -39,7 +39,7 @@ persistence:
   size: 10Gi
 
 service:
-  type: ClusterIP
+  type: None
   port: 5432
 
 resources:
