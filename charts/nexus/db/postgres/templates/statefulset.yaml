@@ -4,7 +4,7 @@ metadata:
   name: ck-postgres
 spec:
   serviceName: ck-postgres
-  replicas: 2
+  replicas: 3
   selector:
     matchLabels:
       app: ck-postgres
