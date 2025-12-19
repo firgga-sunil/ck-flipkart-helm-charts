@@ -3,7 +3,7 @@
 # metadata:
 #   name: ck-postgres
 # spec:
-#   type: {{ .Values.service.type }}
+#   type: "{{ .Values.service.type }}"
 #   ports:
 #     - port: {{ .Values.service.port }}
 #       targetPort: 5432

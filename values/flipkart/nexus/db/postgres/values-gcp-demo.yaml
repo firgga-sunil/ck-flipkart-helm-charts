@@ -20,7 +20,7 @@ credentials:
 postgresql:
   replication:
     enabled: true
-    user: repl_user
+    user: cknexus
 
 persistence:
   enabled: true
