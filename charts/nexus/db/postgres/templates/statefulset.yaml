@@ -99,6 +99,8 @@ spec:
               mountPath: /bitnami/postgresql/
             - name: init-scripts
               mountPath: /docker-entrypoint-initdb.d
+            - name: replication-config
+              mountPath: /tmp
 
       volumes:
         - name: init-scripts
