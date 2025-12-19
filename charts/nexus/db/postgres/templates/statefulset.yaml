@@ -52,8 +52,8 @@ spec:
             - name: POSTGRESQL_REPLICATION_MODE
               value: "slave"
             
-            - name: POSTGRESQL_REPLICA_USER
-              value: "{{ .Values.postgresql.replication.user }}"
+            - name: POSTGRESQL_REPLICATION_USER
+              value: "{{ .Values.postgresql.replica_user }}"
 
             - name: POSTGRESQL_MASTER_HOST
               value: "ck-postgres-0.ck-postgres"
