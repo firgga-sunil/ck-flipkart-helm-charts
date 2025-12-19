@@ -77,6 +77,8 @@ spec:
               value: "{{ .Values.postgresql.replication.user }}"
             - name: POSTGRESQL_MASTER_PORT_NUMBER
               value: "5432"
+            -name: POSTGRESQL_POSTGRES_PASSWORD
+             value: cknexus
           command:
             - /bin/bash
             - -c
