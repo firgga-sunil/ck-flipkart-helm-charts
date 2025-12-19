@@ -4,7 +4,7 @@ metadata:
   name: ck-postgres
 spec:
   serviceName: ck-postgres
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: ck-postgres
@@ -49,8 +49,17 @@ spec:
             - secretRef:
                 name: ck-postgres-secret
           env:
-            - name: POSTGRESQL_REPLICATION_MODE
-              value: "slave"
+            command: ["/bin/bash", "-c"]
+            args:
+              - |
+                if [[ $(echo $POD_NAME | grep -o '[0-9]*$') -eq 0 ]]; then
+                  export POSTGRESQL_REPLICATION_MODE=master
+                else
+                  export POSTGRESQL_REPLICATION_MODE=slave
+                  export POSTGRESQL_MASTER_HOST=ck-postgres-0.ck-postgres
+                fi
+                /opt/bitnami/scripts/postgresql/entrypoint.sh /opt/bitnami/scripts/postgresql/run.sh
+          
             
             - name: POSTGRESQL_REPLICATION_USER
               value: "{{ .Values.postgresql.replication.user }}"
