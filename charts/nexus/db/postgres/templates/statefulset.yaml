@@ -49,16 +49,16 @@ spec:
             - secretRef:
                 name: ck-postgres-secret
           env:
-            command: ["/bin/bash", "-c"]
-            args:
-              - |
-                if [[ $(echo $POD_NAME | grep -o '[0-9]*$') -eq 0 ]]; then
-                  export POSTGRESQL_REPLICATION_MODE=master
-                else
-                  export POSTGRESQL_REPLICATION_MODE=slave
-                  export POSTGRESQL_MASTER_HOST=ck-postgres-0.ck-postgres
-                fi
-                /opt/bitnami/scripts/postgresql/entrypoint.sh /opt/bitnami/scripts/postgresql/run.sh
+          command: ["/bin/bash", "-c"]
+          args:
+            - |
+              if [[ $(echo $POD_NAME | grep -o '[0-9]*$') -eq 0 ]]; then
+                export POSTGRESQL_REPLICATION_MODE=master
+              else
+                export POSTGRESQL_REPLICATION_MODE=slave
+                export POSTGRESQL_MASTER_HOST=ck-postgres-0.ck-postgres
+              fi
+              /opt/bitnami/scripts/postgresql/entrypoint.sh /opt/bitnami/scripts/postgresql/run.sh
           
             
             - name: POSTGRESQL_REPLICATION_USER
