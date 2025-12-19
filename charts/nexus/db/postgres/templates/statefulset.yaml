@@ -49,8 +49,8 @@ spec:
             - secretRef:
                 name: ck-postgres-secret
           env:
-            # - name: POSTGRESQL_REPLICATION_MODE
-            #   value: "master"
+            - name: POSTGRESQL_REPLICATION_MODE
+              value: "slave"
             
             - name: POSTGRESQL_REPLICATION_USER
               value: "{{ .Values.postgresql.replication.user }}"
