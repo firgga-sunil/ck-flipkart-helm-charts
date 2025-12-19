@@ -38,6 +38,29 @@ spec:
       imagePullSecrets:
 {{ toYaml .Values.imagePullSecrets | nindent 8 }}
 {{- end }}
+      initContainers:
+        - name: set-replication-mode
+          image: busybox:latest
+          command:
+            - sh
+            - -c
+            - |
+              POD_ORDINAL=$(echo $HOSTNAME | grep -o '[0-9]*$')
+              echo "Pod ordinal: $POD_ORDINAL"
+              
+              if [ "$POD_ORDINAL" = "0" ]; then
+                echo "Setting up as PRIMARY"
+                echo "export POSTGRESQL_REPLICATION_MODE=master" > /tmp/replication-mode.sh
+              else
+                echo "Setting up as REPLICA"
+                echo "export POSTGRESQL_REPLICATION_MODE=slave" > /tmp/replication-mode.sh
+                echo "export POSTGRESQL_MASTER_HOST=ck-postgres-0.ck-postgres" >> /tmp/replication-mode.sh
+              fi
+              
+              cat /tmp/replication-mode.sh
+          volumeMounts:
+            - name: replication-config
+              mountPath: /tmp
       containers:
         - name: ck-postgres
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
