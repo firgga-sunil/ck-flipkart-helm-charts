@@ -15,6 +15,7 @@ credentials:
   username: cknexus
   password: cknexus
   database: ckservicedb
+  replica_password: cknexus
 
 persistence:
   enabled: true
