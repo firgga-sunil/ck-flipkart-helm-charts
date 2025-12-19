@@ -111,7 +111,6 @@ spec:
       securityContext:
         runAsUser: 1001
         fsGroup: 1001
-
 {{- if and .Values.nodeAffinity .Values.nodeAffinity.enabled }}
       affinity:
         nodeAffinity:
@@ -123,24 +122,20 @@ spec:
                     values:
                       - {{ .Values.nodeAffinity.nodeType }}
 {{- end }}
-
 {{- if .Values.tolerations }}
       tolerations:
         {{- toYaml .Values.tolerations | nindent 8 }}
 {{- end }}
-
 {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml .Values.imagePullSecrets | nindent 8 }}
 {{- end }}
-
       volumes:
         - name: init-scripts
           configMap:
             name: ck-postgres-init
         - name: replication-config
           emptyDir: {}
-
       initContainers:
         - name: set-replication-mode
           image: busybox:latest
@@ -164,7 +159,6 @@ spec:
           volumeMounts:
             - name: replication-config
               mountPath: /tmp
-
       containers:
         - name: ck-postgres
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -199,7 +193,6 @@ spec:
               mountPath: /docker-entrypoint-initdb.d
             - name: replication-config
               mountPath: /tmp
-
   volumeClaimTemplates:
     - metadata:
         name: postgres-data
