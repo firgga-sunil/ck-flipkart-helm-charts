@@ -76,7 +76,7 @@ spec:
             - name: POSTGRESQL_REPLICATION_USER
               value: "replication_user"
 
-            - name: POSTGRESQL_PASSWORD  
+            - name: POSTGRESQL_POSTGRES_PASSWORD  
               value: "{{ .Values.credentials.password }}"
 
             - name: POSTGRESQL_MASTER_PORT_NUMBER
