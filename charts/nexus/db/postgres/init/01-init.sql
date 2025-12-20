@@ -2,10 +2,13 @@
 DO
 $$
 BEGIN
-  IF EXISTS (
-    SELECT 1 FROM pg_roles WHERE rolname = 'cknexus'
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_roles WHERE rolname = '{{ .Values.credentials.username }}'
   ) THEN
-    ALTER ROLE cknexus WITH SUPERUSER;
+    CREATE ROLE '{{ .Values.credentials.username }}'
+      WITH LOGIN
+      SUPERUSER
+      PASSWORD '{{ .Values.credentials.password }}';
   END IF;
 END
 $$;
