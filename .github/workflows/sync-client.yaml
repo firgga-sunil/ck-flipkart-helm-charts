@@ -1,41 +1,78 @@
-name: Sync client from template
+name: Update service tag and sync clients
 
 on:
   workflow_dispatch:
     inputs:
-      client:
-        description: 'Client name to sync (eg: flipkart, phonepe)'
+      service_name:
+        description: "Select service"
         required: true
-      auto_merge:
-        description: 'Auto-merge PR if checks pass'
+        type: choice
+        options:
+          - ck-graph-mcp-server
+          - ck-intel-collector
+          - ck-mcp
+          - karma-lens
+          - nexus
+          - nginx
+
+      service_tag:
+        description: "New image tag"
+        required: true
+        type: string
+
+      client1:
+        description: "Flipkart"
         required: false
-        default: 'false'
+        type: boolean
+
+      client2:
+        description: "PhonePe"
+        required: false
+        type: boolean
+
+      auto_merge:
+        description: "Auto-merge child PRs"
+        required: true
+        default: false
+        type: boolean
 
 permissions:
-  contents: write   # to push branches to child repos
+  contents: write
   pull-requests: write
 
 jobs:
-  sync:
+  update-and-sync:
     runs-on: ubuntu-latest
+
     env:
-      GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }} # token with repo scopes OR GitHub App token
       ORG: firgga-sunil
-      PARENT_REPO: ${{ github.repository }}   # the template repo
+      PARENT_REPO: ${{ github.repository }}
+      TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
     steps:
-      - name: Check out parent repo
+      - name: Checkout parent repo
         uses: actions/checkout@v4
         with:
-          fetch-depth: 1
+          fetch-depth: 0   # IMPORTANT (we will commit)
 
-      - name: Install git & rsync
+      - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y rsync jq
+          sudo apt-get install -y jq rsync
+          sudo snap install yq
 
-      - name: Run sync script
+      - name: Update parent repo values file
         run: |
           chmod +x .github/scripts-repo/sync-client.sh
-          .github/scripts-repo/sync-client.sh "${{ github.event.inputs.client }}" "${{ github.event.inputs.auto_merge }}" "${{ env.ORG }}" "${{ env.PARENT_REPO }}" "${{ secrets.PERSONAL_ACCESS_TOKEN }}"
+          .github/scripts-repo/sync-client.sh
         env:
-          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          SERVICE_NAME: ${{ inputs.service_name }}
+          SERVICE_TAG: ${{ inputs.service_tag }}
+
+          CLIENT1: ${{ inputs.client1 }}
+          CLIENT2: ${{ inputs.client2 }}
+
+          AUTO_MERGE: ${{ inputs.auto_merge }}
+          ORG: ${{ env.ORG }}
+          PARENT_REPO: ${{ env.PARENT_REPO }}
+          TOKEN: ${{ env.TOKEN }}
