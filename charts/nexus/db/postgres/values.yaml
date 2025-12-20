@@ -11,11 +11,6 @@ credentials:
   database: ckservicedb
   replica_password: cknexus
 
-postgresql:
-  replication:
-    enabled: true
-    user: cknexus
-
 persistence:
   enabled: true
   storageClass: "standard"

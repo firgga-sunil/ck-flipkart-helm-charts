@@ -1,3 +1,17 @@
+-- Adding Replication user with required Permissions
+DO
+$$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_roles WHERE rolname = 'replication_user'
+  ) THEN
+    CREATE ROLE {{ .Values.postgresql.replication.user }}
+      WITH LOGIN
+      REPLICATION
+      PASSWORD '{{ .Values.credentials.replica_password }}';
+  END IF;
+END
+$$;
 CREATE TABLE IF NOT EXISTS domain_graph_path (
 	domain_name text NOT NULL,
 	service_name text NOT NULL,
