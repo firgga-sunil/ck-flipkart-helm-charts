@@ -3,9 +3,9 @@ DO
 $$
 BEGIN
   IF EXISTS (
-    SELECT 1 FROM pg_roles WHERE rolname = '{{ .Values.credentials.username }}'
+    SELECT 1 FROM pg_roles WHERE rolname = cknexus
   ) THEN
-    ALTER ROLE {{ .Values.credentials.username }} WITH SUPERUSER;
+    ALTER ROLE cknexus WITH SUPERUSER;
   END IF;
 END
 $$;
