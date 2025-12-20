@@ -5,7 +5,7 @@ BEGIN
   IF EXISTS (
     SELECT 1 FROM pg_roles WHERE rolname = '{{ .Values.credentials.username }}'
   ) THEN
-    ALTER ROLE "{{ .Values.credentials.username }}" WITH SUPERUSER;
+    ALTER ROLE '{{ .Values.credentials.username }}' WITH SUPERUSER;
   END IF;
 END
 $$;
