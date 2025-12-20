@@ -2,13 +2,25 @@
 DO
 $$
 BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_roles WHERE rolname = 'replication_user'
+  IF EXISTS (
+    SELECT 1 FROM pg_roles WHERE rolname = '{{ .Values.credentials.username }}'
   ) THEN
-    CREATE ROLE {{ .Values.postgresql.replication.user }}
-      WITH LOGIN
-      REPLICATION
-      PASSWORD '{{ .Values.credentials.replica_password }}';
+    ALTER ROLE {{ .Values.postgresql.username }} WITH SUPERUSER;
+  END IF;
+END
+$$;
+DO
+$$
+BEGIN
+  -- Use the template variable consistently
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_roles WHERE rolname = '{{ .Values.postgresql.replication.user }}'
+  ) THEN
+    EXECUTE format(
+      'CREATE ROLE %I WITH LOGIN REPLICATION PASSWORD %L',
+      '{{ .Values.postgresql.replication.user }}',
+      '{{ .Values.credentials.replica_password }}'
+    );
   END IF;
 END
 $$;
