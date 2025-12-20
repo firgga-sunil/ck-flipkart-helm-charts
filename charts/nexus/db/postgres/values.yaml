@@ -9,7 +9,7 @@ credentials:
   username: cknexus
   password: cknexus
   database: ckservicedb
-  replica_user_password: cknexus
+  # replica_user_password: cknexus
 
 postgresql:
   replication:
