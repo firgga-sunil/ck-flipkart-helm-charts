@@ -1,18 +1,4 @@
 -- Adding Replication user with required Permissions
-DO
-$$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_roles WHERE rolname = '{{ .Values.credentials.username }}'
-  ) THEN
-    CREATE ROLE {{ .Values.credentials.username }}
-      WITH LOGIN
-      SUPERUSER
-      PASSWORD '{{ .Values.credentials.password }}';
-  END IF;
-END
-$$;
-DO
 $$
 BEGIN
   -- Use the template variable consistently
