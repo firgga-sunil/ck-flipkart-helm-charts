@@ -43,7 +43,7 @@ spec:
           emptyDir: {}
       initContainers:
         - name: set-replication-mode
-          image: ghcr.io/ckgitrepouser/ck-nexus/busybox:1.36.1
+          image: ghcr.io/ckgitrepouser/ck-nexus/busybox:latest
           command:
             - sh
             - -c
