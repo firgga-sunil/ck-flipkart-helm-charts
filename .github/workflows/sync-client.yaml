@@ -63,8 +63,8 @@ jobs:
 
       - name: Update parent repo values file
         run: |
-          chmod +x .github/scripts/update-parent-and-sync.sh
-          .github/scripts/update-parent-and-sync.sh
+          chmod +x .github/scripts-repo/sync-client.sh
+          .github/scripts-repo/sync-client.sh
         env:
           SERVICE_NAME: ${{ inputs.service_name }}
           SERVICE_TAG: ${{ inputs.service_tag }}
