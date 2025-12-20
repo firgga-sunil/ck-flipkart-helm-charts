@@ -3,7 +3,7 @@ DO
 $$
 BEGIN
   IF EXISTS (
-    SELECT 1 FROM pg_roles WHERE rolname = cknexus
+    SELECT 1 FROM pg_roles WHERE rolname = 'cknexus'
   ) THEN
     ALTER ROLE cknexus WITH SUPERUSER;
   END IF;
