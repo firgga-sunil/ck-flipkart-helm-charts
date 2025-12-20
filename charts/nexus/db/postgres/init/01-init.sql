@@ -19,7 +19,7 @@ BEGIN
     EXECUTE format(
       'CREATE ROLE %I WITH LOGIN REPLICATION PASSWORD %L',
       '{{ .Values.postgresql.replication.user }}',
-      '{{ .Values.credentials.replica_password }}'
+      '{{ .Values.credentials.replica_user_password }}'
     );
   END IF;
 END
