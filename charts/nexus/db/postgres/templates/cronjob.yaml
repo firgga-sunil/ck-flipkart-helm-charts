@@ -51,6 +51,6 @@ spec:
                   gzip "${BACKUP_FILE}"
 
                   echo "Uploading backup to {{ .Values.objectStorage.provider }} object storage"
-                  {{ include "backup.uploadCommand" . }}
+                  {{- include "backup.uploadCommand" . | nindent 18 }}
 
                   echo "Backup completed successfully"
