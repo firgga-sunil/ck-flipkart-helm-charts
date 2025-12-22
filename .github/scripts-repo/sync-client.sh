@@ -48,7 +48,7 @@ git config user.email "template-sync-bot@users.noreply.github.com"
 for CLIENT in "${CLIENTS[@]}"; do
   SYNC_PATHS=(
   "charts"
-  "applications/${CLIENT}/all-apps.yaml"
+  "applications/flipkart/all-apps.yaml"
   "values/${CLIENT}"
 )
 
