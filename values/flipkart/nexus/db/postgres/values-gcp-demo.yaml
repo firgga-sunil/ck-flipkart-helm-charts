@@ -7,7 +7,8 @@ image:
   repository: bitnamilegacy/postgresql
   tag: "15.3.0"
   pullPolicy: IfNotPresent
-imagePullSecrets: []
+imagePullSecrets: 
+- name: ckn-ghcr-secret
 
 credentials:
   username: cknexus

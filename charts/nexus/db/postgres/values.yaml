@@ -3,7 +3,8 @@ image:
   repository: bitnamilegacy/postgresql
   tag: "15.3.0"
   pullPolicy: IfNotPresent
-imagePullSecrets: []
+imagePullSecrets: 
+- name: ckn-ghcr-secret
 
 credentials:
   username: cknexus
@@ -16,10 +17,6 @@ postgresql:
     enabled: true
     user: replication_user
 
-persistence:
-  enabled: true
-  storageClass: "standard"
-  size: 8Gi
 
 service:
   port: 5432
@@ -32,6 +29,11 @@ objectStorage:
 gcp:
   serviceAccount: codekarma-dev-node-sa@ck-flipkart-pg.iam.gserviceaccount.com
 schedule: "*/5 * * * *" # Every % minutes
+
+persistence:
+  enabled: true
+  storageClass: "standard"
+  size: 8Gi
 
 resources:
   requests:
