@@ -21,8 +21,8 @@ spec:
             - name: backup-job
               image: ghcr.io/ckgitrepouser/db-backup/prod/ck-nexus/db-backup:latest
               imagePullPolicy: {{ .Values.image.pullPolicy | default "IfNotPresent" }}
-{{- if .Values.imagePullSecrets }}
-    imagePullSecrets:
+     {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
 {{ toYaml .Values.imagePullSecrets | indent 8 }}
       {{- end }}
               env:
