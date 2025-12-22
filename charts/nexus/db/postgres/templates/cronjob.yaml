@@ -21,7 +21,9 @@ spec:
             - name: backup-job
               image: ghcr.io/ckgitrepouser/db-backup/prod/ck-nexus/db-backup:latest
               imagePullPolicy: {{ .Values.image.pullPolicy | default "IfNotPresent" }}
-
+    imagePullSecrets:
+{{ toYaml .Values.imagePullSecrets | indent 8 }}
+      {{- end }}
               env:
                 - name: PGHOST
                   value: ck-postgres-0.ck-postgres
