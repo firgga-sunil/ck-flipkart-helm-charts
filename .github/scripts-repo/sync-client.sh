@@ -45,13 +45,14 @@ git config user.email "template-sync-bot@users.noreply.github.com"
 ############################################
 # Update parent values files
 ############################################
+pwd
 for CLIENT in "${CLIENTS[@]}"; do
   SYNC_PATHS=(
   "charts"
   "applications/flipkart/all-apps.yaml"
   "values/${CLIENT}"
 )
-
+pwd
   TIMESTAMP=$(date +"%Y%m%d%H%M%S")-$$
   BRANCH="sync/${CLIENT}/${TIMESTAMP}"
   CHILD_DIR="${WORKDIR}/child"
