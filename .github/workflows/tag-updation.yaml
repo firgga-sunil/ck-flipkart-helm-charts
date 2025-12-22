@@ -52,30 +52,38 @@ jobs:
       - name: Locate values file from all-apps.yaml
         id: find_values
         run: |
-          CLIENT="${{ inputs.client }}"
-          SERVICE="${{ inputs.service_name }}"
-          APP_FILE="applications/${CLIENT}/all-apps.yaml"
+            CLIENT="${{ inputs.client }}"
+            SERVICE="${{ inputs.service_name }}"
+            APP_FILE="applications/${CLIENT}/all-apps.yaml"
 
-          echo "Using all-apps file: $APP_FILE"
-
-          if [ ! -f "$APP_FILE" ]; then
+            if [ ! -f "$APP_FILE" ]; then
             echo "ERROR: $APP_FILE not found"
             exit 1
-          fi
+            fi
 
-          VALUES_FILE=$(yq -r '
+            RAW_VALUES_FILE=$(yq -r '
             select(.kind == "Application")
             | select(.metadata.name == "'"$SERVICE"'")
             | .spec.source.helm.valueFiles[0]
-          ' "$APP_FILE")
+            ' "$APP_FILE")
 
-          if [ -z "$VALUES_FILE" ] || [ "$VALUES_FILE" = "null" ]; then
-            echo "ERROR: Values file not found for service $SERVICE in client $CLIENT"
+            if [ -z "$RAW_VALUES_FILE" ] || [ "$RAW_VALUES_FILE" = "null" ]; then
+            echo "ERROR: Values file not defined for $SERVICE"
             exit 1
-          fi
+            fi
 
-          echo "Resolved values file: $VALUES_FILE"
-          echo "values_file=$VALUES_FILE" >> "$GITHUB_OUTPUT"
+            # Normalize path (remove ../../)
+            VALUES_FILE=$(echo "$RAW_VALUES_FILE" | sed 's|^\.\./\.\./||')
+
+            echo "Resolved values file: $VALUES_FILE"
+
+            if [ ! -f "$VALUES_FILE" ]; then
+            echo "ERROR: Values file $VALUES_FILE does not exist in repo"
+            exit 1
+            fi
+
+            echo "values_file=$VALUES_FILE" >> "$GITHUB_OUTPUT"
+
 
       - name: Update image tag in values file
         run: |
