@@ -24,6 +24,10 @@ if [ "${#CLIENTS[@]}" -eq 0 ]; then
   exit 1
 fi
 
+echo "Service: ${SERVICE_NAME}"
+echo "Tag: ${SERVICE_TAG}"
+echo "Clients: ${CLIENTS[*]}"
+
 ############################################
 # Clone parent repo (once)
 ############################################
@@ -42,68 +46,92 @@ PARENT_COMMIT="$(git rev-parse --short HEAD)"
 # PHASE 1: Update parent values files
 ############################################
 for CLIENT in "${CLIENTS[@]}"; do
-  APP_DIR="${PARENT_DIR}/applications/${CLIENT}"
-  APP_FILE="${APP_DIR}/all-apps.yaml"
+  APP_FILE="${PARENT_DIR}/applications/${CLIENT}/all-apps.yaml"
 
-  # Check if applications directory exists
-  if [ ! -d "${APP_DIR}" ]; then
-    echo "WARNING: Applications directory ${APP_DIR} does not exist, skipping values update for ${CLIENT}"
-    continue
-  fi
-
-  # Check if all-apps.yaml exists
-  if [ ! -f "${APP_FILE}" ]; then
-    echo "WARNING: ${APP_FILE} not found, skipping values update for ${CLIENT}"
-    echo "Available files in ${APP_DIR}:"
-    ls -la "${APP_DIR}" || echo "  (unable to list directory)"
-    continue
-  fi
-
-  echo "Updating ${SERVICE_NAME} values for client ${CLIENT}"
-  echo "Reading from: ${APP_FILE}"
+  echo "============================================"
+  echo "Updating ${SERVICE_NAME} tag to ${SERVICE_TAG} for client ${CLIENT}"
+  echo "============================================"
 
   CHART_PATH=$(yq -r '
-    select(.kind=="Application")
-    | select(.metadata.name=="'"${SERVICE_NAME}"'")
-    | .spec.source.path
-  ' "${APP_FILE}" || echo "")
+    .spec.applications[] |
+    select(.name=="'"${SERVICE_NAME}"'") |
+    .source.path
+  ' "${APP_FILE}" 2>/dev/null || echo "")
+
+  # If not found in applications array, try as standalone Application
+  if [ -z "${CHART_PATH}" ] || [ "${CHART_PATH}" = "null" ]; then
+    CHART_PATH=$(yq -r '
+      select(.kind=="Application") |
+      select(.metadata.name=="'"${SERVICE_NAME}"'") |
+      .spec.source.path
+    ' "${APP_FILE}" 2>/dev/null || echo "")
+  fi
 
   if [ -z "${CHART_PATH}" ] || [ "${CHART_PATH}" = "null" ]; then
-    echo "No ArgoCD Application found for ${SERVICE_NAME} in ${CLIENT}"
+    echo "WARNING: No chart path found for ${SERVICE_NAME} in ${CLIENT}"
     continue
   fi
 
-  echo "Found chart path: ${CHART_PATH}"
+  echo "Chart path: ${CHART_PATH}"
 
+  # Get value files - try both formats
   VALUE_FILES=$(yq -r '
-    select(.kind=="Application")
-    | select(.metadata.name=="'"${SERVICE_NAME}"'")
-    | .spec.source.helm.valueFiles[]?
-  ' "${APP_FILE}" || echo "")
+    .spec.applications[] |
+    select(.name=="'"${SERVICE_NAME}"'") |
+    .source.helm.valueFiles[]?
+  ' "${APP_FILE}" 2>/dev/null || echo "")
 
   if [ -z "${VALUE_FILES}" ]; then
-    echo "No value files found for ${SERVICE_NAME} in ${CLIENT}"
+    VALUE_FILES=$(yq -r '
+      select(.kind=="Application") |
+      select(.metadata.name=="'"${SERVICE_NAME}"'") |
+      .spec.source.helm.valueFiles[]?
+    ' "${APP_FILE}" 2>/dev/null || echo "")
+  fi
+
+  if [ -z "${VALUE_FILES}" ]; then
+    echo "WARNING: No value files found for ${SERVICE_NAME}"
     continue
   fi
 
+  echo "Value files to update:"
   for vf in ${VALUE_FILES}; do
     VALUES_PATH="${PARENT_DIR}/${CHART_PATH}/${vf}"
+    echo "  - ${vf}"
 
-    if [ ! -f "${VALUES_PATH}" ]; then
-      echo "WARNING: ${VALUES_PATH} not found"
-      continue
+    if [ -f "${VALUES_PATH}" ]; then
+      # Show current tag
+      CURRENT_TAG=$(yq -r '.image.tag // "not found"' "${VALUES_PATH}" 2>/dev/null || echo "error reading")
+      echo "    Current tag: ${CURRENT_TAG}"
+      
+      # Update the tag
+      yq -i '.image.tag = "'"${SERVICE_TAG}"'"' "${VALUES_PATH}"
+      
+      # Verify the update
+      NEW_TAG=$(yq -r '.image.tag // "not found"' "${VALUES_PATH}" 2>/dev/null || echo "error reading")
+      echo "    New tag: ${NEW_TAG}"
+      
+      if [ "${NEW_TAG}" = "${SERVICE_TAG}" ]; then
+        echo "    ✓ Tag updated successfully"
+      else
+        echo "    ✗ WARNING: Tag update verification failed"
+      fi
+    else
+      echo "    ✗ File not found: ${VALUES_PATH}"
     fi
-
-    echo "Updating tag in ${VALUES_PATH}"
-    yq -i '.image.tag = "'"${SERVICE_TAG}"'"' "${VALUES_PATH}"
   done
 done
 
 ############################################
 # Commit & push parent changes (DIRECT)
 ############################################
+echo "============================================"
+echo "Committing changes to parent repo"
+echo "============================================"
+
 if git status --porcelain | grep -q .; then
   git add -A
+  git status --short
   git commit -m "chore: update ${SERVICE_NAME} tag to ${SERVICE_TAG}"
   git push origin main
   echo "✓ Pushed changes to parent repo"
@@ -119,36 +147,11 @@ for CLIENT in "${CLIENTS[@]}"; do
   echo "Syncing child repo for client: ${CLIENT}"
   echo "============================================"
 
-  # Define paths to sync - only include paths that exist
-  SYNC_PATHS=()
-  
-  # Always try to sync charts
-  if [ -d "${PARENT_DIR}/charts" ]; then
-    SYNC_PATHS+=("charts")
-  else
-    echo "WARNING: charts directory not found"
-  fi
-  
-  # Sync client-specific values
-  if [ -d "${PARENT_DIR}/values/${CLIENT}" ]; then
-    SYNC_PATHS+=("values/${CLIENT}")
-  else
-    echo "WARNING: values/${CLIENT} directory not found"
-  fi
-  
-  # Sync client-specific applications
-  if [ -d "${PARENT_DIR}/applications/${CLIENT}" ]; then
-    SYNC_PATHS+=("applications/${CLIENT}")
-  else
-    echo "WARNING: applications/${CLIENT} directory not found"
-  fi
-
-  if [ "${#SYNC_PATHS[@]}" -eq 0 ]; then
-    echo "ERROR: No valid paths to sync for ${CLIENT}, skipping"
-    continue
-  fi
-
-  echo "Paths to sync: ${SYNC_PATHS[*]}"
+  SYNC_PATHS=(
+    "charts"
+    "values/${CLIENT}"
+    "applications/${CLIENT}"
+  )
 
   TIMESTAMP="$(date +"%Y%m%d%H%M%S")-$$"
   BRANCH="sync/${CLIENT}/${TIMESTAMP}"
@@ -165,7 +168,7 @@ for CLIENT in "${CLIENTS[@]}"; do
   if [ "${HTTP_CODE}" != "200" ]; then
     echo "Creating child repo ${CHILD_REPO}"
 
-    CREATE_RESPONSE=$(curl -s -X POST \
+    curl -s -X POST \
       -H "Authorization: token ${TOKEN}" \
       -H "Accept: application/vnd.github+json" \
       https://api.github.com/user/repos \
@@ -173,13 +176,7 @@ for CLIENT in "${CLIENTS[@]}"; do
         \"name\": \"${CLIENT}-charts\",
         \"private\": true,
         \"auto_init\": false
-      }")
-
-    if echo "${CREATE_RESPONSE}" | jq -e '.id' >/dev/null 2>&1; then
-      echo "✓ Repository created successfully"
-    else
-      echo "WARNING: Repository creation response: ${CREATE_RESPONSE}"
-    fi
+      }" >/dev/null
 
     sleep 3
   fi
@@ -187,7 +184,6 @@ for CLIENT in "${CLIENTS[@]}"; do
   ##########################################
   # Clone child repo
   ##########################################
-  echo "Cloning child repo..."
   git clone "https://x-access-token:${TOKEN}@github.com/${CHILD_REPO}.git" "${CHILD_DIR}"
   cd "${CHILD_DIR}"
 
@@ -198,7 +194,6 @@ for CLIENT in "${CLIENTS[@]}"; do
   # Initialize main branch if needed
   ##########################################
   if ! git rev-parse --verify main >/dev/null 2>&1; then
-    echo "Initializing main branch..."
     git checkout --orphan main
     git rm -rf . >/dev/null 2>&1 || true
     git commit --allow-empty -m "Initial commit"
@@ -217,21 +212,16 @@ for CLIENT in "${CLIENTS[@]}"; do
     src="${PARENT_DIR}/${p}"
     dest="${CHILD_DIR}/${p}"
 
-    if [ ! -e "${src}" ]; then
-      echo "WARNING: Source path ${src} does not exist, skipping"
-      continue
-    fi
+    if [ -e "${src}" ]; then
+      echo "Copying ${p}"
+      mkdir -p "$(dirname "${dest}")"
 
-    echo "Copying ${src} -> ${dest}"
-    mkdir -p "$(dirname "${dest}")"
-
-    if [ -d "${src}" ]; then
-      # Copy directory contents
-      mkdir -p "${dest}"
-      rsync -av --delete --exclude='.git' "${src}/" "${dest}/"
-    elif [ -f "${src}" ]; then
-      # Copy single file
-      rsync -av "${src}" "${dest}"
+      if [ -d "${src}" ]; then
+        mkdir -p "${dest}"
+        rsync -av --delete --exclude='.git' "${src}/" "${dest}/"
+      elif [ -f "${src}" ]; then
+        rsync -av "${src}" "${dest}"
+      fi
     fi
   done
 
@@ -240,25 +230,25 @@ for CLIENT in "${CLIENTS[@]}"; do
   ##########################################
   if git status --porcelain | grep -q .; then
     git add -A
-    git commit -m "Sync from template ${PARENT_REPO}@${PARENT_COMMIT} for ${CLIENT}
+    git commit -m "Sync from template ${PARENT_REPO}@${PARENT_COMMIT}
 
-- Updated ${SERVICE_NAME} to ${SERVICE_TAG}
-- Synced: ${SYNC_PATHS[*]}"
+- Service: ${SERVICE_NAME}
+- Tag: ${SERVICE_TAG}
+- Client: ${CLIENT}"
     git push --set-upstream origin "${BRANCH}"
 
     ##########################################
     # Create PR
     ##########################################
     PR_JSON=$(jq -n \
-      --arg title "Sync from template ${PARENT_COMMIT} → ${CLIENT}" \
+      --arg title "Sync ${SERVICE_NAME}:${SERVICE_TAG} → ${CLIENT}" \
       --arg head "${BRANCH}" \
       --arg base "main" \
-      --arg body "Automated sync from ${PARENT_REPO} commit ${PARENT_COMMIT}
+      --arg body "Automated sync from ${PARENT_REPO}@${PARENT_COMMIT}
 
-**Changes:**
-- Service: ${SERVICE_NAME}
-- Tag: ${SERVICE_TAG}
-- Synced paths: ${SYNC_PATHS[*]}" \
+**Service:** ${SERVICE_NAME}
+**Tag:** ${SERVICE_TAG}
+**Client:** ${CLIENT}" \
       '{title:$title, head:$head, base:$base, body:$body}')
 
     PR_RESPONSE=$(curl -s -X POST \
@@ -270,15 +260,14 @@ for CLIENT in "${CLIENTS[@]}"; do
     PR_NUMBER=$(echo "${PR_RESPONSE}" | jq -r '.number')
 
     if [ "${PR_NUMBER}" != "null" ] && [ -n "${PR_NUMBER}" ]; then
-      echo "✓ PR #${PR_NUMBER} created for ${CLIENT}"
-      echo "  URL: https://github.com/${CHILD_REPO}/pull/${PR_NUMBER}"
+      echo "✓ PR #${PR_NUMBER} created: https://github.com/${CHILD_REPO}/pull/${PR_NUMBER}"
 
       ##########################################
       # Auto-merge (optional)
       ##########################################
       if [ "${AUTO_MERGE}" = "true" ]; then
         echo "Auto-merging PR #${PR_NUMBER}..."
-        sleep 2  # Brief delay to let PR be fully created
+        sleep 2
         
         MERGE_RESPONSE=$(curl -s -X PUT \
           -H "Authorization: token ${TOKEN}" \
@@ -286,17 +275,14 @@ for CLIENT in "${CLIENTS[@]}"; do
           "https://api.github.com/repos/${CHILD_REPO}/pulls/${PR_NUMBER}/merge" \
           -d '{"merge_method":"squash"}')
         
-        MERGE_STATUS=$(echo "${MERGE_RESPONSE}" | jq -r '.merged // false')
-        if [ "${MERGE_STATUS}" = "true" ]; then
+        if echo "${MERGE_RESPONSE}" | jq -e '.merged' >/dev/null 2>&1; then
           echo "✓ PR #${PR_NUMBER} merged successfully"
         else
-          echo "⚠ Failed to auto-merge PR #${PR_NUMBER}"
-          echo "${MERGE_RESPONSE}" | jq -r '.message // "Unknown error"'
+          echo "⚠ Failed to auto-merge: $(echo "${MERGE_RESPONSE}" | jq -r '.message')"
         fi
       fi
     else
-      echo "✗ Failed to create PR for ${CLIENT}"
-      echo "${PR_RESPONSE}" | jq -r '.message // .errors // "Unknown error"'
+      echo "✗ Failed to create PR: $(echo "${PR_RESPONSE}" | jq -r '.message // .errors[0].message')"
     fi
   else
     echo "ℹ No changes to sync for ${CLIENT}"
@@ -309,7 +295,6 @@ done
 # Cleanup
 ############################################
 echo "============================================"
-echo "Cleanup: Removing temporary directory"
 rm -rf "${WORKDIR}"
 cd "${ORIGINAL_PWD}"
 echo "✓ Sync completed successfully"
