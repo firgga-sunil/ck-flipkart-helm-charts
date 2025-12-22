@@ -3,20 +3,25 @@ name: Update Image Tag via ArgoCD Values
 on:
   workflow_dispatch:
     inputs:
+      client:
+        description: "Select client"
+        required: true
+        type: choice
+        options:
+          - flipkart
+          - phonePe
+
       service_name:
         description: "Select service"
         required: true
         type: choice
         options:
-          - ck-graph-mcp-server
-          - ck-intel-collector
-          - ck-mcp
-          - gcp-gateway
-          - karma-lens
-          - nexus
-          - nginx
+          - user-service
+          - order-service
+          - payment-service
+
       service_tag:
-        description: "Image tag"
+        description: "Docker image tag"
         required: false
 
 jobs:
@@ -43,9 +48,11 @@ jobs:
       - name: Locate values file from all-apps.yaml
         id: find_values
         run: |
+          CLIENT="${{ inputs.client }}"
           SERVICE="${{ inputs.service_name }}"
-          CLIENT="client"   # change if needed
           APP_FILE="applications/${CLIENT}/all-apps.yaml"
+
+          echo "Using all-apps file: $APP_FILE"
 
           if [ ! -f "$APP_FILE" ]; then
             echo "ERROR: $APP_FILE not found"
@@ -59,10 +66,11 @@ jobs:
           ' "$APP_FILE")
 
           if [ -z "$VALUES_FILE" ] || [ "$VALUES_FILE" = "null" ]; then
-            echo "ERROR: Values file not found for $SERVICE"
+            echo "ERROR: Values file not found for service $SERVICE in client $CLIENT"
             exit 1
           fi
 
+          echo "Resolved values file: $VALUES_FILE"
           echo "values_file=$VALUES_FILE" >> "$GITHUB_OUTPUT"
 
       - name: Update image tag in values file
@@ -84,6 +92,8 @@ jobs:
 
           git add "${{ steps.find_values.outputs.values_file }}"
           git commit -m "chore(${{
+            inputs.client
+          }}/${{
             inputs.service_name
           }}): update image tag to ${{
             inputs.service_tag
