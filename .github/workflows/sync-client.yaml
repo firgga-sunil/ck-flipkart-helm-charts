@@ -1,4 +1,4 @@
-name: Update service tag and sync clients
+name: Syncs template repo to client repos
 
 on:
   workflow_dispatch:
@@ -43,7 +43,7 @@ jobs:
 
       - name: Run sync script
         run: |
-          chmod +x .github/scripts/sync-repos.sh
-          .github/scripts/sync-repos.sh "${{ github.event.inputs.client }}" "${{ github.event.inputs.auto_merge }}" "${{ env.ORG }}" "${{ env.PARENT_REPO }}" "${{ secrets.PERSONAL_ACCESS_TOKEN }}"
+          chmod +x .github/scripts-repo/sync-repos.sh
+          .github/scripts-repo/sync-repos.sh "${{ github.event.inputs.clients }}" "${{ github.event.inputs.auto_merge }}" "${{ env.ORG }}" "${{ env.PARENT_REPO }}" "${{ secrets.PERSONAL_ACCESS_TOKEN }}"
         env:
           GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
