@@ -1,0 +1,86 @@
+name: Update Image Tag via ArgoCD Values
+
+on:
+  workflow_dispatch:
+    inputs:
+      service_name:
+        description: "Select service"
+        required: true
+        type: choice
+        options:
+          - user-service
+          - order-service
+          - payment-service
+      service_tag:
+        description: "Docker image tag"
+        required: false
+
+jobs:
+  update-tag:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Validate inputs
+        run: |
+          if [ -n "${{ inputs.service_name }}" ] && [ -z "${{ inputs.service_tag }}" ]; then
+            echo "ERROR: service_tag is required when service_name is selected"
+            exit 1
+          fi
+
+      - name: Install yq
+        run: |
+          sudo wget -qO /usr/local/bin/yq \
+            https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+          sudo chmod +x /usr/local/bin/yq
+
+      - name: Locate values file from all-apps.yaml
+        id: find_values
+        run: |
+          SERVICE="${{ inputs.service_name }}"
+          CLIENT="client"   # change if needed
+          APP_FILE="applications/${CLIENT}/all-apps.yaml"
+
+          if [ ! -f "$APP_FILE" ]; then
+            echo "ERROR: $APP_FILE not found"
+            exit 1
+          fi
+
+          VALUES_FILE=$(yq -r '
+            select(.kind == "Application")
+            | select(.metadata.name == "'"$SERVICE"'")
+            | .spec.source.helm.valueFiles[0]
+          ' "$APP_FILE")
+
+          if [ -z "$VALUES_FILE" ] || [ "$VALUES_FILE" = "null" ]; then
+            echo "ERROR: Values file not found for $SERVICE"
+            exit 1
+          fi
+
+          echo "values_file=$VALUES_FILE" >> "$GITHUB_OUTPUT"
+
+      - name: Update image tag in values file
+        run: |
+          VALUES_FILE="${{ steps.find_values.outputs.values_file }}"
+          TAG="${{ inputs.service_tag }}"
+
+          if [ ! -f "$VALUES_FILE" ]; then
+            echo "ERROR: Values file $VALUES_FILE does not exist"
+            exit 1
+          fi
+
+          yq -i '.image.tag = "'"$TAG"'"' "$VALUES_FILE"
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+          git add "${{ steps.find_values.outputs.values_file }}"
+          git commit -m "chore(${{
+            inputs.service_name
+          }}): update image tag to ${{
+            inputs.service_tag
+          }}"
