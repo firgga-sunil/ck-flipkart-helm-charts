@@ -1,3 +1,7 @@
+# image:
+#   repository: bitnamilegacy/postgresql
+#   tag: "15.2.0"
+#   pullPolicy: IfNotPresent
 
 image:
   repository: bitnamilegacy/postgresql
@@ -16,13 +20,9 @@ postgresql:
     enabled: true
     user: replication_user
 
-persistence:
-  enabled: true
-  storageClass: "standard"
-  size: 8Gi
-
 service:
   port: 5432
+
 
 objectStorage:
   provider: gcp
@@ -33,25 +33,41 @@ gcp:
   serviceAccount: codekarma-dev-node-sa@ck-flipkart-pg.iam.gserviceaccount.com
 schedule: "*/5 * * * *" # Every % minutes
 
+persistence:
+  enabled: true
+  nameOverride: ck-postgres-pvc-gcp
+  storageClass: ckn-gcp-sc
+  createStorageClass: true
+
+  # GCP-specific StorageClass fields
+  provisioner: pd.csi.storage.gke.io
+  volumeBindingMode: WaitForFirstConsumer
+  isDefault: false
+
+  parameters:
+    type: pd-ssd
+    replication-type: none
+  size: 10Gi
+
+
+
 resources:
   requests:
-    memory: "512Mi"
-    cpu: "512m"
-  limits:
     memory: "1024Mi"
-    cpu: "1024m" 
+    cpu: "1024m"
+  limits:
+    memory: "1048Mi"
+    cpu: "1024m"
 
 # Add init scripts configuration
 initScripts:
   enabled: true
   scripts:
-    - name: "01-init.sql"
-      path: "init/01-init.sql"
+  - name: "01-init.sql"
+    path: "init/01-init.sql"
 
-# Node affinity configuration (disabled by default)
-nodeAffinity:
-  enabled: false
-  nodeType: ""
-
-# Tolerations (empty by default)
-tolerations: []
+#tolerations:
+#  - key: "nodetype"
+#    operator: "Equal"
+#    value: "db-monitoring-node"
+#    effect: "NoSchedule"
