@@ -94,8 +94,6 @@ spec:
               mountPath: /docker-entrypoint-initdb.d
             - name: replication-config
               mountPath: /tmp
-            - name: backup-tools
-              mountPath: /tools
 
             
   volumeClaimTemplates:
