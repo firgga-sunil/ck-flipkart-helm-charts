@@ -2,9 +2,6 @@ apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: postgres-backup
-  labels:
-    app.kubernetes.io/name: postgres-backup
-    app.kubernetes.io/component: backup
 spec:
   schedule: "{{ .Values.schedule }}"
   concurrencyPolicy: Forbid
@@ -33,9 +30,7 @@ spec:
                 - name: PGUSER
                   value: postgres
                 - name: PGPASSWORD
-                  value: 'cknexus'
-
-
+                  value: "cknexus"
 {{- if eq .Values.objectStorage.provider "aws" }}
                 - name: AWS_REGION
                   value: {{ .Values.objectStorage.region | quote }}
@@ -45,18 +40,17 @@ spec:
                 - /bin/bash
                 - -c
                 - |
-                    set -euo pipefail
+                  set -euo pipefail
 
-                    TS=$(date +%F-%H%M%S)
-                    BACKUP_FILE="/tmp/pg-backup-${TS}.sql"
+                  TS=$(date +%F-%H%M%S)
+                  BACKUP_FILE="/tmp/pg-backup-${TS}.sql"
 
-                    echo "Starting PostgreSQL backup"
-                    pg_dump my_database > "${BACKUP_FILE}"
+                  echo "Starting PostgreSQL backup"
+                  pg_dump my_database > "${BACKUP_FILE}"
 
-                    gzip "${BACKUP_FILE}"
+                  gzip "${BACKUP_FILE}"
 
-                    echo "Uploading backup to {{ .Values.objectStorage.provider }} object storage"
-                    {{ include "backup.uploadCommand" . }}
+                  echo "Uploading backup to {{ .Values.objectStorage.provider }} object storage"
+                  {{ include "backup.uploadCommand" . }}
 
-                    echo "Backup completed successfully"
-
+                  echo "Backup completed successfully"
