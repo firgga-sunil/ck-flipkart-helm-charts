@@ -16,9 +16,13 @@ on:
         required: true
         type: choice
         options:
-          - user-service
-          - order-service
-          - payment-service
+          - ck-graph-mcp-server
+          - ck-intel-collector
+          - ck-mcp
+          - gcp-gateway
+          - karma-lens
+          - nexus
+          - nginx
 
       service_tag:
         description: "Docker image tag"
