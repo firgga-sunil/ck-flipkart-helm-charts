@@ -59,17 +59,6 @@ spec:
             - name: replication-config
               mountPath: /tmp
 
-        - name: set-backup-job-tools
-          image: rclone/rclone:latest
-          command:
-            - sh
-            - -c
-            - |
-              cp /usr/bin/rclone /tools/rclone
-          volumeMounts:
-            - name: backup-tools
-              mountPath: /tools
-
       containers:
         - name: ck-postgres
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -89,8 +78,6 @@ spec:
               value: "{{ .Values.credentials.password }}"
             - name: POSTGRESQL_MASTER_PORT_NUMBER
               value: "5432"
-            - name: PATH
-              value: "/tools:$PATH"
 
           command:
             - /bin/bash
