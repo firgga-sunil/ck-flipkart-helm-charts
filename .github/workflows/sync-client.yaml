@@ -9,8 +9,8 @@ on:
         default: ""
         type: choice
         options:
-          - "Flipkart"
-          - "PhonePe"
+          - "flipkart"
+          - "phonePe"
 
       auto_merge:
         description: "Auto-merge child PRs"
