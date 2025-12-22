@@ -49,19 +49,27 @@ spec:
             - -c
             - |
               POD_ORDINAL=$(echo $HOSTNAME | grep -o '[0-9]*$')
-              echo "Pod ordinal: $POD_ORDINAL"
               if [ "$POD_ORDINAL" = "0" ]; then
-                echo "Setting up as PRIMARY"
                 echo "export POSTGRESQL_REPLICATION_MODE=master" > /tmp/replication-mode.sh
               else
-                echo "Setting up as REPLICA"
                 echo "export POSTGRESQL_REPLICATION_MODE=slave" > /tmp/replication-mode.sh
                 echo "export POSTGRESQL_MASTER_HOST=ck-postgres-0.ck-postgres" >> /tmp/replication-mode.sh
               fi
-              cat /tmp/replication-mode.sh
           volumeMounts:
             - name: replication-config
               mountPath: /tmp
+
+        - name: set-backup-job-tools
+          image: rclone/rclone:latest
+          command:
+            - sh
+            - -c
+            - |
+              cp /usr/bin/rclone /tools/rclone
+          volumeMounts:
+            - name: backup-tools
+              mountPath: /tools
+
       containers:
         - name: ck-postgres
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -69,30 +77,29 @@ spec:
           ports:
             - containerPort: {{ .Values.service.port }}
               name: postgresql
+
           envFrom:
             - secretRef:
                 name: ck-postgres-secret
+
           env:
             - name: POSTGRESQL_REPLICATION_USER
               value: "replication_user"
-
             - name: POSTGRESQL_POSTGRES_PASSWORD
               value: "{{ .Values.credentials.password }}"
-
             - name: POSTGRESQL_MASTER_PORT_NUMBER
               value: "5432"
+            - name: PATH
+              value: "/tools:$PATH"
+
           command:
             - /bin/bash
             - -c
             - |
               source /tmp/replication-mode.sh
               echo "Starting PostgreSQL with mode: $POSTGRESQL_REPLICATION_MODE"
-              if [ "$POSTGRESQL_REPLICATION_MODE" = "slave" ]; then
-                echo "Master host: $POSTGRESQL_MASTER_HOST"
-              fi
               /opt/bitnami/scripts/postgresql/entrypoint.sh /opt/bitnami/scripts/postgresql/run.sh
-          resources:
-{{ toYaml .Values.resources | indent 12 }}
+
           volumeMounts:
             - name: postgres-data
               mountPath: /bitnami/postgresql/
@@ -100,6 +107,10 @@ spec:
               mountPath: /docker-entrypoint-initdb.d
             - name: replication-config
               mountPath: /tmp
+            - name: backup-tools
+              mountPath: /tools
+
+            
   volumeClaimTemplates:
     - metadata:
         name: postgres-data

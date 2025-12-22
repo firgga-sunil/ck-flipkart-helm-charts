@@ -1,0 +1,65 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: postgres-backup
+  labels:
+    app.kubernetes.io/name: postgres-backup
+    app.kubernetes.io/component: backup
+spec:
+  schedule: "{{ .Values.schedule }}"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      template:
+        spec:
+          serviceAccountName: postgres-backup-sa
+          restartPolicy: OnFailure
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1001
+          containers:
+            - name: backup-job
+              image: ghcr.io/ckgitrepouser/db-backup/prod/ck-nexus/db-backup:latest
+              imagePullPolicy: {{ .Values.image.pullPolicy | default "IfNotPresent" }}
+
+              env:
+                - name: PGHOST
+                  value: ck-postgres-0.ck-postgres
+                - name: PGPORT
+                  value: "5432"
+                - name: PGUSER
+                  value: postgres
+                - name: PGPASSWORD
+                  value: 'cknexus'
+
+
+{{- if eq .Values.objectStorage.provider "aws" }}
+                - name: AWS_REGION
+                  value: {{ .Values.objectStorage.region | quote }}
+{{- end }}
+
+              command:
+                - /bin/bash
+                - -c
+                - |
+                  set -euo pipefail
+
+                  TS=$(date +%F-%H%M%S)
+                  BACKUP_FILE="/tmp/pg-backup-${TS}.sql"
+
+                  echo "Starting PostgreSQL backup"
+                  pg_dump \
+                    -h {{ .Values.postgres.host }} \
+                    -p {{ .Values.postgres.port | default 5432 }} \
+                    -U {{ .Values.postgres.user }} \
+                    {{ .Values.postgres.database }} > ${BACKUP_FILE}
+
+                  gzip ${BACKUP_FILE}
+
+                  echo "Uploading backup to {{ .Values.objectStorage.provider }} object storage"
+                  {{ include "backup.uploadCommand" . }}
+
+                  echo "Backup completed successfully"

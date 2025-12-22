@@ -24,6 +24,15 @@ persistence:
 service:
   port: 5432
 
+objectStorage:
+  provider: gcp
+  bucket: ck-flipkart-pg-storage-bucket
+  prefix: prod/daily
+
+gcp:
+  serviceAccount: codekarma-dev-node-sa@ck-flipkart-pg.iam.gserviceaccount.com
+schedule: "*/5 * * * *" # Every % minutes
+
 resources:
   requests:
     memory: "512Mi"
