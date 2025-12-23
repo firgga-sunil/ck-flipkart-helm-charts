@@ -17,10 +17,10 @@ spec:
           securityContext:
             runAsNonRoot: true
             runAsUser: 1001
-{{- if .Values.imagePullSecrets }}
+          {{- if .Values.imagePullSecrets }}
           imagePullSecrets:
 {{ toYaml .Values.imagePullSecrets | indent 12 }}
-{{- end }}
+          {{- end }}
           containers:
             - name: backup-job
               image: ghcr.io/ckgitrepouser/db-backup/prod/ck-nexus/db-backup:latest
