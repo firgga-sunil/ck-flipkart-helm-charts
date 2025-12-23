@@ -33,7 +33,7 @@ objectStorage:
 
 gcp:
   serviceAccount: codekarma-dev-node-sa@ck-flipkart-pg.iam.gserviceaccount.com
-schedule: "*/1 * * * *" # Every 1 minutes
+schedule: "0 * * * *" # Every 1 minutes
 
 persistence:
   enabled: true
