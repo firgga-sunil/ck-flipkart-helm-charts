@@ -1,136 +1,62 @@
-name: Build & Push Selected Components
+name: Centralized CI Trigger
 
 on:
   workflow_dispatch:
     inputs:
-      nexus_enabled:
-        description: "Build Nexus"
-        type: boolean
-        default: false
+      component:
+        description: "Select component(s) to build"
+        type: choice
+        required: true
+        options:
+          - nexus
+          - karmalens
+          - all
 
-      nexus_tag:
-        description: "Docker image tag for Nexus"
-        required: false
-        default: "latest"
-
-      karmalens_enabled:
-        description: "Build Karmalens"
-        type: boolean
-        default: false
-
-      karmalens_tag:
-        description: "Docker image tag for Karmalens"
-        required: false
-        default: "latest"
-
-      nginx_enabled:
-        description: "Build Nginx"
-        type: boolean
-        default: false
-
-      nginx_tag:
-        description: "Docker image tag for Nginx"
-        required: false
-        default: "latest"
-
-      ck_graph_mcp_server_enabled:
-        description: "Build ck-graph-mcp-server"
-        type: boolean
-        default: false
-
-      ck_graph_mcp_server_tag:
-        description: "Docker image tag for ck-graph-mcp-server"
-        required: false
-        default: "latest"
-
-      ck_mcp_enabled:
-        description: "Build ck-mcp"
-        type: boolean
-        default: false
-
-      ck_mcp_tag:
-        description: "Docker image tag for ck-mcp"
-        required: false
-        default: "latest"
-
-      ck_intel_collector_enabled:
-        description: "Build ck-intel-collector"
-        type: boolean
-        default: false
-
-      ck_intel_collector_tag:
-        description: "Docker image tag for ck-intel-collector"
-        required: false
-        default: "latest"
+      image_tag:
+        description: "Docker image tag"
+        required: true
+        default: ""
 
 jobs:
-  build-and-push:
+  trigger-ci:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Login to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      # ---------------- NEXUS ----------------
-      - name: Build & Push Nexus
-        if: ${{ inputs.nexus_enabled }}
+      # ---------------- VALIDATION ----------------
+      - name: Validate inputs
         run: |
-          docker build \
-            -t ghcr.io/${{ github.repository_owner }}/nexus:${{ inputs.nexus_tag }} \
-            ./nexus
-          docker push ghcr.io/${{ github.repository_owner }}/nexus:${{ inputs.nexus_tag }}
+          if [[ -z "${{ inputs.image_tag }}" ]]; then
+            echo "ERROR: Image tag is required"
+            exit 1
+          fi
 
-      # ---------------- KARMALENS ----------------
-      - name: Build & Push Karmalens
-        if: ${{ inputs.karmalens_enabled }}
+      # ---------------- DISPATCH LOGIC ----------------
+      - name: Trigger selected CI pipelines
         run: |
-          docker build \
-            -t ghcr.io/${{ github.repository_owner }}/karmalens:${{ inputs.karmalens_tag }} \
-            ./karmalens
-          docker push ghcr.io/${{ github.repository_owner }}/karmalens:${{ inputs.karmalens_tag }}
+          case "${{ inputs.component }}" in
+            nexus)
+              REPOS=("ck-nexus")
+              ;;
+            karmalens)
+              REPOS=("karma-lens")
+              ;;
+            all)
+              REPOS=("ck-nexus" "karma-lens")
+              ;;
+            *)
+              echo "Invalid selection"
+              exit 1
+              ;;
+          esac
 
-      # ---------------- NGINX ----------------
-      - name: Build & Push Nginx
-        if: ${{ inputs.nginx_enabled }}
-        run: |
-          docker build \
-            -t ghcr.io/${{ github.repository_owner }}/nginx:${{ inputs.nginx_tag }} \
-            ./nginx
-          docker push ghcr.io/${{ github.repository_owner }}/nginx:${{ inputs.nginx_tag }}
+          for REPO in "${REPOS[@]}"; do
+            echo "Triggering CI for $REPO"
 
-      # ---------------- CK GRAPH MCP SERVER ----------------
-      - name: Build & Push ck-graph-mcp-server
-        if: ${{ inputs.ck_graph_mcp_server_enabled }}
-        run: |
-          docker build \
-            -t ghcr.io/${{ github.repository_owner }}/ck-graph-mcp-server:${{ inputs.ck_graph_mcp_server_tag }} \
-            ./ck-graph-mcp-server
-          docker push ghcr.io/${{ github.repository_owner }}/ck-graph-mcp-server:${{ inputs.ck_graph_mcp_server_tag }}
-
-      # ---------------- CK MCP ----------------
-      - name: Build & Push ck-mcp
-        if: ${{ inputs.ck_mcp_enabled }}
-        run: |
-          docker build \
-            -t ghcr.io/${{ github.repository_owner }}/ck-mcp:${{ inputs.ck_mcp_tag }} \
-            ./ck-mcp
-          docker push ghcr.io/${{ github.repository_owner }}/ck-mcp:${{ inputs.ck_mcp_tag }}
-
-      # ---------------- CK INTEL COLLECTOR ----------------
-      - name: Build & Push ck-intel-collector
-        if: ${{ inputs.ck_intel_collector_enabled }}
-        run: |
-          docker build \
-            -t ghcr.io/${{ github.repository_owner }}/ck-intel-collector:${{ inputs.ck_intel_collector_tag }} \
-            ./ck-intel-collector
-          docker push ghcr.io/${{ github.repository_owner }}/ck-intel-collector:${{ inputs.ck_intel_collector_tag }}
+            curl -X POST \
+              -H "Accept: application/vnd.github+json" \
+              -H "Authorization: Bearer ${{ secrets.REPO_DISPATCH_TOKEN }}" \
+              https://api.github.com/repos/codekarma-tech/${REPO}/dispatches \
+              -d "{
+                \"event_type\": \"build-image\",
+                \"client_payload\": {
+                  \"tag\": \"${{ inputs.
