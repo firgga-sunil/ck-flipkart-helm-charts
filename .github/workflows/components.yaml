@@ -31,8 +31,12 @@ jobs:
 
       # ---------------- DISPATCH LOGIC ----------------
       - name: Trigger selected CI pipelines
+        env:
+          COMPONENT: ${{ inputs.component }}
+          IMAGE_TAG: ${{ inputs.image_tag }}
+          TOKEN: ${{ secrets.REPO_DISPATCH_TOKEN }}
         run: |
-          case "${{ inputs.component }}" in
+          case "$COMPONENT" in
             nexus)
               REPOS=("ck-nexus")
               ;;
@@ -43,7 +47,7 @@ jobs:
               REPOS=("ck-nexus" "karma-lens")
               ;;
             *)
-              echo "Invalid selection"
+              echo "Invalid component"
               exit 1
               ;;
           esac
@@ -53,9 +57,11 @@ jobs:
 
             curl -X POST \
               -H "Accept: application/vnd.github+json" \
-              -H "Authorization: Bearer ${{ secrets.REPO_DISPATCH_TOKEN }}" \
+              -H "Authorization: Bearer $TOKEN" \
               https://api.github.com/repos/codekarma-tech/${REPO}/dispatches \
-              -d "{
-                \"event_type\": \"build-image\",
-                \"client_payload\": {
-                  \"tag\": \"${{ inputs.
+              -d "$(jq -n \
+                --arg tag "$IMAGE_TAG" \
+                '{event_type:"build-image", client_payload:{tag:$tag}}'
+              )"
+          done
+
