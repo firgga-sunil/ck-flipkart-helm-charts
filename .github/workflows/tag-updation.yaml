@@ -84,18 +84,34 @@ jobs:
 
             echo "values_file=$VALUES_FILE" >> "$GITHUB_OUTPUT"
 
+      - name: Debug values file content BEFORE update
+        run: |
+          echo "Values file path:"
+          echo "${{ steps.find_values.outputs.values_file }}"
+          echo "-----------------------------"
+          cat "${{ steps.find_values.outputs.values_file }}"
 
       - name: Update image tag in values file
         run: |
           VALUES_FILE="${{ steps.find_values.outputs.values_file }}"
           TAG="${{ inputs.service_tag }}"
 
-          if [ ! -f "$VALUES_FILE" ]; then
-            echo "ERROR: Values file $VALUES_FILE does not exist"
-            exit 1
-          fi
+          echo "Updating image.tag to $TAG in $VALUES_FILE"
 
-          yq -i '.image.tag = "'"$TAG"'"' "$VALUES_FILE"
+          yq -i '
+            .image.tag = strenv(TAG)
+          ' "$VALUES_FILE"
+
+      
+      - name: Debug values file content AFTER update
+        run: |
+          echo "-----------------------------"
+          cat "${{ steps.find_values.outputs.values_file }}"
+
+      - name: Verify git diff
+        run: |
+          git diff
+
 
       - name: Commit changes
         run: |
