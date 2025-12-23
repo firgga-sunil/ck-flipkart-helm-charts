@@ -34,6 +34,8 @@ spec:
                   value: postgres
                 - name: PGPASSWORD
                   value: "cknexus"
+                - name: PGDATABASE
+                  value: ckservicedb
 {{- if eq .Values.objectStorage.provider "aws" }}
                 - name: AWS_REGION
                   value: {{ .Values.objectStorage.region | quote }}
@@ -48,7 +50,7 @@ spec:
                   BACKUP_FILE="/tmp/pg-backup-${TS}.sql"
 
                   echo "Starting PostgreSQL backup"
-                  pg_dump my_database > "${BACKUP_FILE}"
+                  pg_dump ckservicedb > "${BACKUP_FILE}"
 
                   gzip "${BACKUP_FILE}"
 
