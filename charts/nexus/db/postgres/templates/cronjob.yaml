@@ -26,21 +26,24 @@ spec:
               image: ghcr.io/ckgitrepouser/db-backup/prod/ck-nexus/db-backup:latest
               imagePullPolicy: {{ .Values.image.pullPolicy | default "IfNotPresent" }}
               env:
-                - name: PGHOST
-                  value: ck-postgres-0.ck-postgres
-                - name: PGPORT
-                  value: "5432"
-                - name: PGUSER
-                  value: postgres
-                - name: PGPASSWORD
-                  value: "cknexus"
-                - name: PGDATABASE
-                  value: ckservicedb
-                - name: HOME
-                  value: /tmp
+              - name: PGHOST
+                value: ck-postgres-0.ck-postgres
+              - name: PGPORT
+                value: {{ .Values.service.port | quote }}
+              - name: PGUSER
+                value: {{ .Values.credentials.username | quote }}
+              - name: PGDATABASE
+                value: {{ .Values.credentials.database | quote }}
+              - name: HOME
+                value: /tmp
+              - name: PGPASSWORD
+                valueFrom:
+                  secretKeyRef:
+                    name: ck-postgres-secret
+                    key: POSTGRESQL_PASSWORD
 {{- if eq .Values.objectStorage.provider "aws" }}
-                - name: AWS_REGION
-                  value: {{ .Values.objectStorage.region | quote }}
+              - name: AWS_REGION
+                value: {{ .Values.objectStorage.region | quote }}
 {{- end }}
               command:
                 - /bin/bash
@@ -52,7 +55,7 @@ spec:
                   BACKUP_FILE="/tmp/pg-backup-${TS}.sql"
 
                   echo "Starting PostgreSQL backup"
-                  pg_dump ckservicedb > "${BACKUP_FILE}"
+                  pg_dump > "${BACKUP_FILE}"
 
                   gzip "${BACKUP_FILE}"
 
@@ -60,3 +63,4 @@ spec:
                   {{- include "backup.uploadCommand" . | nindent 18 }}
 
                   echo "Backup completed successfully"
+                  
