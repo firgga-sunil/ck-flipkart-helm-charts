@@ -10,7 +10,6 @@ on:
         options:
           - nexus
           - karmalens
-          - all
 
       image_tag:
         description: "Docker image tag"
