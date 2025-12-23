@@ -36,6 +36,8 @@ spec:
                   value: "cknexus"
                 - name: PGDATABASE
                   value: ckservicedb
+                - name: HOME
+                  value: /tmp
 {{- if eq .Values.objectStorage.provider "aws" }}
                 - name: AWS_REGION
                   value: {{ .Values.objectStorage.region | quote }}
