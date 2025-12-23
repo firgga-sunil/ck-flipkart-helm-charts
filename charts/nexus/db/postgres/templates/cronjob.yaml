@@ -17,13 +17,14 @@ spec:
           securityContext:
             runAsNonRoot: true
             runAsUser: 1001
+{{- if .Values.imagePullSecrets }}
+          imagePullSecrets:
+{{ toYaml .Values.imagePullSecrets | indent 12 }}
+{{- end }}
           containers:
             - name: backup-job
               image: ghcr.io/ckgitrepouser/db-backup/prod/ck-nexus/db-backup:latest
               imagePullPolicy: {{ .Values.image.pullPolicy | default "IfNotPresent" }}
-
-          imagePullSecrets: "{{ .Values.imagePullSecrets }}"
-
               env:
                 - name: PGHOST
                   value: ck-postgres-0.ck-postgres
@@ -37,7 +38,6 @@ spec:
                 - name: AWS_REGION
                   value: {{ .Values.objectStorage.region | quote }}
 {{- end }}
-
               command:
                 - /bin/bash
                 - -c
