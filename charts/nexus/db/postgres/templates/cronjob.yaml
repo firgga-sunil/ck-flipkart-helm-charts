@@ -22,8 +22,7 @@ spec:
               image: ghcr.io/ckgitrepouser/db-backup/prod/ck-nexus/db-backup:latest
               imagePullPolicy: {{ .Values.image.pullPolicy | default "IfNotPresent" }}
 
-          imagePullSecrets:
-           - value: {{ .Values.imagePullSecrets }}
+          imagePullSecrets: "{{ .Values.imagePullSecrets }}"
 
               env:
                 - name: PGHOST
