@@ -34,7 +34,7 @@ jobs:
         env:
           COMPONENT: ${{ inputs.component }}
           IMAGE_TAG: ${{ inputs.image_tag }}
-          TOKEN: ${{ secrets.REPO_DISPATCH_TOKEN }}
+          TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
         run: |
           case "$COMPONENT" in
             nexus)
