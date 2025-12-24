@@ -1,7 +1,7 @@
 
 image:
-  repository: bitnamilegacy/postgresql
-  tag: "15.3.0"
+  repository: ghcr.io/ckgitrepouser/prod/ck-nexus/bitnamilegacy/postgresql
+  tag: "latest"
   pullPolicy: IfNotPresent
 
 imagePullSecrets: 
