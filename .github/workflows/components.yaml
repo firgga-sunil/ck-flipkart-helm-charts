@@ -1,4 +1,4 @@
-name: Centralized CI Trigger
+name: Docker Image Build Orchestration
 
 on:
   workflow_dispatch:
@@ -29,8 +29,8 @@ jobs:
             exit 1
           fi
 
-      # ---------------- DISPATCH LOGIC ----------------
-      - name: Trigger selected CI pipelines
+      # ---------------- DISPATCH WORKFLOW ----------------
+      - name: Trigger build workflow
         env:
           COMPONENT: ${{ inputs.component }}
           IMAGE_TAG: ${{ inputs.image_tag }}
@@ -43,9 +43,6 @@ jobs:
             karmalens)
               REPOS=("karma-lens")
               ;;
-            all)
-              REPOS=("ck-nexus" "karma-lens")
-              ;;
             *)
               echo "Invalid component"
               exit 1
@@ -53,15 +50,15 @@ jobs:
           esac
 
           for REPO in "${REPOS[@]}"; do
-            echo "Triggering CI for $REPO"
+            echo "Triggering build workflow for $REPO"
 
-            curl -X POST \
+            curl -s -X POST \
               -H "Accept: application/vnd.github+json" \
               -H "Authorization: Bearer $TOKEN" \
               https://api.github.com/repos/codekarma-tech/${REPO}/dispatches \
               -d "$(jq -n \
+                --arg component "$COMPONENT" \
                 --arg tag "$IMAGE_TAG" \
-                '{event_type:"build-image", client_payload:{tag:$tag}}'
+                '{event_type:"trigger-build-workflow", client_payload:{component:$component, tag:$tag}}'
               )"
           done
-
