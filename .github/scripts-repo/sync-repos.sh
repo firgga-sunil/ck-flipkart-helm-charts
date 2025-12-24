@@ -102,14 +102,37 @@ for p in "${SYNC_PATHS[@]}"; do
 done
 
 ############################################
-# 7) Commit & push if changes exist
+# 7) Detect changes and exit early if none
 ############################################
-if git status --porcelain | grep -q .; then
-  git add -A
-  git commit -m "Sync from template ${PARENT_REPO}@${PARENT_COMMIT} for ${CLIENT}"
-  git push --set-upstream origin "${BRANCH}"
+if ! git status --porcelain | grep -q .; then
+  echo "--------------------------------------------------"
+  echo "Nothing to sync"
+  echo "Parent repo commit ${PARENT_COMMIT} introduced no"
+  echo "changes for client '${CLIENT}'."
+  echo "--------------------------------------------------"
 
-  ##########################################
+  # Optional: expose output for GitHub Actions
+  if [ -n "${GITHUB_OUTPUT:-}" ]; then
+    echo "changed=false" >> "$GITHUB_OUTPUT"
+  fi
+
+  # Clean up temp directory
+  rm -rf "${TMPDIR}"
+
+  # Exit cleanly (job stays GREEN)
+  exit 0
+fi
+
+############################################
+# 8) Commit & push changes
+############################################
+git add -A
+git commit -m "Sync from template ${PARENT_REPO}@${PARENT_COMMIT} for ${CLIENT}"
+git push --set-upstream origin "${BRANCH}"
+
+
+
+ ##########################################
   # 8) Create PR
   ##########################################
   PR_TITLE="Sync from template ${PARENT_COMMIT} → ${CLIENT}"
@@ -143,9 +166,7 @@ if git status --porcelain | grep -q .; then
       "https://api.github.com/repos/${CHILD_REPO}/pulls/${PR_NUMBER}/merge" \
       -d '{"merge_method":"squash"}'
   fi
-else
-  echo "No changes detected. Nothing to sync."
-fi
+
 
 ############################################
 # 10) Cleanup
