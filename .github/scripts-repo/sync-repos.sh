@@ -80,12 +80,47 @@ if ! git rev-parse --verify main >/dev/null 2>&1; then
 fi
 
 ############################################
-# 5) Create sync branch
+# 5) Detect changes BEFORE creating branch
+############################################
+echo "Checking for differences between parent and child..."
+
+CHANGES_FOUND=false
+
+for p in "${SYNC_PATHS[@]}"; do
+  src="${PARENT_DIR}/${p}"
+  dest="${CHILD_DIR}/${p}"
+
+  if [ -d "$src" ]; then
+    if rsync -avnc --delete "$src/" "$dest/" | grep -q '^>'; then
+      CHANGES_FOUND=true
+      break
+    fi
+  elif [ -f "$src" ]; then
+    if rsync -avnc "$src" "$dest" | grep -q '^>'; then
+      CHANGES_FOUND=true
+      break
+    fi
+  fi
+done
+
+if [ "$CHANGES_FOUND" = "false" ]; then
+  echo "--------------------------------------------------"
+  echo "Nothing to sync"
+  echo "Parent repo commit ${PARENT_COMMIT} introduces no"
+  echo "effective changes for client '${CLIENT}'."
+  echo "--------------------------------------------------"
+  rm -rf "${TMPDIR}"
+  exit 0
+fi
+
+
+############################################
+# 6) Create sync branch
 ############################################
 git checkout -b "${BRANCH}"
 
 ############################################
-# 6) Copy files
+# 7) Copy files
 ############################################
 for p in "${SYNC_PATHS[@]}"; do
   src="${PARENT_DIR}/${p}"
@@ -101,27 +136,6 @@ for p in "${SYNC_PATHS[@]}"; do
   fi
 done
 
-############################################
-# 7) Detect changes and exit early if none
-############################################
-if ! git status --porcelain | grep -q .; then
-  echo "--------------------------------------------------"
-  echo "Nothing to sync"
-  echo "Parent repo commit ${PARENT_COMMIT} introduced no"
-  echo "changes for client '${CLIENT}'."
-  echo "--------------------------------------------------"
-
-  # Optional: expose output for GitHub Actions
-  if [ -n "${GITHUB_OUTPUT:-}" ]; then
-    echo "changed=false" >> "$GITHUB_OUTPUT"
-  fi
-
-  # Clean up temp directory
-  rm -rf "${TMPDIR}"
-
-  # Exit cleanly (job stays GREEN)
-  exit 0
-fi
 
 ############################################
 # 8) Commit & push changes
