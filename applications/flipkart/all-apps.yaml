@@ -107,18 +107,20 @@ kind: Application
 metadata:
   name: postgres-operator
   namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
 spec:
   project: default
   source:
     repoURL: "https://github.com/firgga-sunil/ck-flipkart-helm-charts.git"
     targetRevision: main
-    path: "./charts/nexus/db/postgres/templates"
+    path: "./charts/postgres-operator"
     helm:
       valueFiles:
-        - ../../../../values/flipkart/nexus/db/postgres/values-gcp-demo.yaml
+        - operator-values-gcp.yaml
   destination:
     server: https://kubernetes.default.svc
-    namespace: codekarma
+    namespace: postgres-operator
   syncPolicy:
     automated:
       prune: true
