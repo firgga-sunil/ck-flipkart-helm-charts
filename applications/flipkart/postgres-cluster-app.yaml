@@ -9,7 +9,7 @@ spec:
   project: default
 
   source:
-    repoURL: https://github.com/YOUR_ORG/YOUR_REPO
+    repoURL: "https://github.com/firgga-sunil/ck-flipkart-helm-charts.git"
     targetRevision: main
     path: applications/flipkart/postgres
     directory:
