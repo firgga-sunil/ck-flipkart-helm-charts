@@ -14,7 +14,7 @@ spec:
     path: charts/postgres-operator
     helm:
       valueFiles:
-        - operator-values-gcp.yaml
+        - values.yaml
 
   destination:
     server: https://kubernetes.default.svc
