@@ -1,0 +1,66 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: postgres-backup
+spec:
+  schedule: "{{ .Values.schedule }}"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      template:
+        spec:
+          serviceAccountName: postgres-backup-sa
+          restartPolicy: OnFailure
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1001
+          {{- if .Values.imagePullSecrets }}
+          imagePullSecrets:
+{{ toYaml .Values.imagePullSecrets | indent 12 }}
+          {{- end }}
+          containers:
+            - name: backup-job
+              image: ghcr.io/ckgitrepouser/db-backup/prod/ck-nexus/db-backup:latest
+              imagePullPolicy: {{ .Values.image.pullPolicy | default "IfNotPresent" }}
+              env:
+              - name: PGHOST
+                value: ck-postgres-0.ck-postgres
+              - name: PGPORT
+                value: {{ .Values.service.port | quote }}
+              - name: PGUSER
+                value: {{ .Values.credentials.username | quote }}
+              - name: PGDATABASE
+                value: {{ .Values.credentials.database | quote }}
+              - name: HOME
+                value: /tmp
+              - name: PGPASSWORD
+                valueFrom:
+                  secretKeyRef:
+                    name: ck-postgres-secret
+                    key: POSTGRESQL_PASSWORD
+{{- if eq .Values.objectStorage.provider "aws" }}
+              - name: AWS_REGION
+                value: {{ .Values.objectStorage.region | quote }}
+{{- end }}
+              command:
+                - /bin/bash
+                - -c
+                - |
+                  set -euo pipefail
+
+                  TS=$(date +%F-%H%M%S)
+                  BACKUP_FILE="/tmp/pg-backup-${TS}.sql"
+
+                  echo "Starting PostgreSQL backup"
+                  pg_dump > "${BACKUP_FILE}"
+
+                  gzip "${BACKUP_FILE}"
+
+                  echo "Uploading backup to {{ .Values.objectStorage.provider }} object storage"
+                  {{- include "backup.uploadCommand" . | nindent 18 }}
+
+                  echo "Backup completed successfully"
+                  

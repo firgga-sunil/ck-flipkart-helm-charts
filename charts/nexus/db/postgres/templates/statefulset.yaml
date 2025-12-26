@@ -1,0 +1,108 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: ck-postgres
+spec:
+  serviceName: ck-postgres
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ck-postgres
+  template:
+    metadata:
+      labels:
+        app: ck-postgres
+    spec:
+      securityContext:
+        runAsUser: 1001
+        fsGroup: 1001
+      {{- if and .Values.nodeAffinity .Values.nodeAffinity.enabled }}
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: cloud.google.com/machine-family
+                    operator: In
+                    values:
+                      - {{ .Values.nodeAffinity.nodeType }}
+      {{- end }}
+      {{- if .Values.tolerations }}
+      tolerations:
+{{ toYaml .Values.tolerations | indent 8 }}
+      {{- end }}
+      {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+{{ toYaml .Values.imagePullSecrets | indent 8 }}
+      {{- end }}
+      volumes:
+        - name: init-scripts
+          configMap:
+            name: ck-postgres-init
+        - name: replication-config
+          emptyDir: {}
+      initContainers:
+        - name: set-replication-mode
+          image: ghcr.io/ckgitrepouser/ck-nexus/busybox:latest
+          command:
+            - sh
+            - -c
+            - |
+              POD_ORDINAL=$(echo $HOSTNAME | grep -o '[0-9]*$')
+              if [ "$POD_ORDINAL" = "0" ]; then
+                echo "export POSTGRESQL_REPLICATION_MODE=master" > /tmp/replication-mode.sh
+              else
+                echo "export POSTGRESQL_REPLICATION_MODE=slave" > /tmp/replication-mode.sh
+                echo "export POSTGRESQL_MASTER_HOST=ck-postgres-0.ck-postgres" >> /tmp/replication-mode.sh
+              fi
+          volumeMounts:
+            - name: replication-config
+              mountPath: /tmp
+
+      containers:
+        - name: ck-postgres
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: "{{ .Values.image.pullPolicy }}"
+          ports:
+            - containerPort: {{ .Values.service.port }}
+              name: postgresql
+
+          envFrom:
+            - secretRef:
+                name: ck-postgres-secret
+
+          env:
+            - name: POSTGRESQL_REPLICATION_USER
+              value: "replication_user"
+            - name: POSTGRESQL_POSTGRES_PASSWORD
+              value: "{{ .Values.credentials.password }}"
+            - name: POSTGRESQL_MASTER_PORT_NUMBER
+              value: "5432"
+
+          command:
+            - /bin/bash
+            - -c
+            - |
+              source /tmp/replication-mode.sh
+              echo "Starting PostgreSQL with mode: $POSTGRESQL_REPLICATION_MODE"
+              /opt/bitnami/scripts/postgresql/entrypoint.sh /opt/bitnami/scripts/postgresql/run.sh
+
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /bitnami/postgresql/
+            - name: init-scripts
+              mountPath: /docker-entrypoint-initdb.d
+            - name: replication-config
+              mountPath: /tmp
+
+            
+  volumeClaimTemplates:
+    - metadata:
+        name: postgres-data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: {{ .Values.persistence.storageClass }}
+        resources:
+          requests:
+            storage: {{ .Values.persistence.size | default "10Gi" }}
