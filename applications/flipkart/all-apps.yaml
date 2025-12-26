@@ -112,7 +112,7 @@ spec:
   source:
     repoURL: "https://github.com/firgga-sunil/ck-flipkart-helm-charts.git"
     targetRevision: main
-    path: "./charts/nexus/db/postgres"
+    path: "./charts/nexus/db/postgres/templates"
     helm:
       valueFiles:
         - ../../../../values/flipkart/nexus/db/postgres/values-gcp-demo.yaml
