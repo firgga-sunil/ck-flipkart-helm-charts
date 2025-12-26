@@ -105,10 +105,8 @@ spec:
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: postgres
+  name: postgres-operator
   namespace: argocd
-  annotations:
-    argocd.argoproj.io/sync-wave: "0"
 spec:
   project: default
   source:
@@ -117,16 +115,15 @@ spec:
     path: "./charts/nexus/db/postgres"
     helm:
       valueFiles:
-      - ../../../../values/flipkart/nexus/db/postgres/values-gcp-demo.yaml
+        - - ../../../../values/flipkart/nexus/db/postgres/values-gcp-demo.yaml
   destination:
-    server: "https://kubernetes.default.svc"
+    server: https://kubernetes.default.svc
     namespace: codekarma
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
-    syncOptions:
-    - CreateNamespace=true
+
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
