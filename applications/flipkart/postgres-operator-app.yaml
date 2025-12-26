@@ -2,7 +2,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: postgres-operator
-  namespace: argocd
+  namespace: codekarma
   annotations:
     argocd.argoproj.io/sync-wave: "0"
 spec:
