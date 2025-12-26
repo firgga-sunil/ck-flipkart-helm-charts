@@ -115,7 +115,7 @@ spec:
     path: "./charts/nexus/db/postgres"
     helm:
       valueFiles:
-        - - ../../../../values/flipkart/nexus/db/postgres/values-gcp-demo.yaml
+        - ../../../../values/flipkart/nexus/db/postgres/values-gcp-demo.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: codekarma
