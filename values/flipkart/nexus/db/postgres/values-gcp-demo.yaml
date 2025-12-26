@@ -1,18 +1,75 @@
-apiVersion: "acid.zalan.do/v1"
-kind: postgresql
-metadata:
-  name: test-db
-  namespace: default
-spec:
-  teamId: "test"
-  volume:
-    size: 1Gi
-  numberOfInstances: 2
-  users:
-    testuser:
-      - superuser
-      - createdb
-  databases:
-    testdb: testuser
-  postgresql:
-    version: "15"
+# image:
+#   repository: bitnamilegacy/postgresql
+#   tag: "15.2.0"
+#   pullPolicy: IfNotPresent
+
+image:
+  repository: ghcr.io/ckgitrepouser/prod/ck-nexus/bitnamilegacy/postgresql
+  tag: "latest"
+  pullPolicy: Always
+
+imagePullSecrets: 
+- name: ckn-ghcr-secret
+
+credentials:
+  username: cknexus
+  password: cknexus
+  database: ckservicedb
+  replica_user_password: cknexus
+
+postgresql:
+  replication:
+    enabled: true
+    user: replication_user
+
+service:
+  port: 5432
+
+
+objectStorage:
+  provider: gcp
+  bucket: ck-flipkart-pg-storage-bucket
+  prefix: prod/daily
+
+gcp:
+  serviceAccount: codekarma-dev-node-sa@ck-flipkart-pg.iam.gserviceaccount.com
+schedule: "0 * * * *" # Every 1 hour
+
+persistence:
+  enabled: true
+  nameOverride: ck-postgres-pvc-gcp
+  storageClass: ckn-gcp-sc
+  createStorageClass: true
+
+  # GCP-specific StorageClass fields
+  provisioner: pd.csi.storage.gke.io
+  volumeBindingMode: WaitForFirstConsumer
+  isDefault: false
+
+  parameters:
+    type: pd-ssd
+    replication-type: none
+  size: 10Gi
+
+
+
+resources:
+  requests:
+    memory: "1024Mi"
+    cpu: "1024m"
+  limits:
+    memory: "1048Mi"
+    cpu: "1024m"
+
+# Add init scripts configuration
+initScripts:
+  enabled: true
+  scripts:
+  - name: "01-init.sql"
+    path: "init/01-init.sql"
+
+#tolerations:
+#  - key: "nodetype"
+#    operator: "Equal"
+#    value: "db-monitoring-node"
+#    effect: "NoSchedule"
