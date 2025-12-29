@@ -25,7 +25,7 @@ spec:
           restartPolicy: OnFailure
           containers:
             - name: wal-g-backup
-              image: ghcr.io/zalando/spilo-16:latest
+              image: ghcr.io/zalando/spilo-16:3.2-p1 
               command:
                 - /bin/bash
                 - -c
