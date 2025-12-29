@@ -14,7 +14,7 @@ metadata:
   name: postgres-walg-backup
   namespace: codekarma
 spec:
-  schedule: "* 1 * * *"   # Every day at 02:00
+  schedule: "*/1 * * * *"   # Every day at 02:00
   successfulJobsHistoryLimit: 3
   failedJobsHistoryLimit: 3
   jobTemplate:
@@ -35,7 +35,7 @@ spec:
                 - name: USE_WALG_BACKUP
                   value: "true"
                 - name: WAL_GS_BUCKET
-                  value: "ck-flipkart-pg-storage-bucket"
+                  value: "gs://ck-flipkart-pg-storage-bucket"
 
 ---
 apiVersion: acid.zalan.do/v1
@@ -68,4 +68,4 @@ spec:
       value: "true"
 
     - name: WAL_GS_BUCKET
-      value: "ck-flipkart-pg-storage-bucket"
+      value: "gs://ck-flipkart-pg-storage-bucket"
