@@ -4,7 +4,7 @@ replicaCount: 1
 # Image will be set via --set parameters
 image:
   repository: "ghcr.io/ckgitrepouser/prod/karma-lens/karma-lens"
-  tag: "v1.4"
+  tag: "latest"
   pullPolicy: Always
 imagePullSecrets:
   - name: ckn-ghcr-secret
