@@ -114,10 +114,10 @@ spec:
   source:
     repoURL: "https://github.com/firgga-sunil/ck-flipkart-helm-charts.git"
     targetRevision: main
-    path: "./charts/postgres-operator"
+    path: "./charts/postgres-cluster"
     helm:
       valueFiles:
-        - operator-values-gcp.yaml
+        - ck-postgres.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: postgres-operator
