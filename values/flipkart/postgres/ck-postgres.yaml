@@ -1,3 +1,12 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: postgres-walg
+  namespace: codekarma
+  annotations:
+    iam.gke.io/gcp-service-account: codekarma-dev-node-sa@ck-flipkart-pg.iam.gserviceaccount.com
+---
 apiVersion: acid.zalan.do/v1
 kind: postgresql
 metadata:
@@ -22,3 +31,9 @@ spec:
 
   databases:
     ckservicedb: cknexus
+    env:
+    - name: USE_WALG_BACKUP
+      value: "true"
+
+    - name: WAL_GS_BUCKET
+      value: "ck-flipkart-pg-storage-bucket"
