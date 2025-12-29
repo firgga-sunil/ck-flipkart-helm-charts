@@ -469,15 +469,11 @@ serviceAccount:
   # If not set and create is true, a name is generated using the fullname template
   name:
 
-aws_or_gcp:
-  wal_gs_bucket: "ck-flipkart-pg-storage-bucket"
-
 podServiceAccount:
   # The name of the ServiceAccount to be used by postgres cluster pods
   # If not set a name is generated using the fullname template and "-pod" suffix
   name: "postgres-pod"
 
-pod_environment_configmap: "postgres-operator/pod-env-overrides"
 # priority class for operator pod
 priorityClassName: ""
 
