@@ -3,31 +3,6 @@ kind: postgresql
 metadata:
   name: ck-postgres
   namespace: codekarma
-spec:
-  teamId: flipkart
-
-  numberOfInstances: 3
-
-  postgresql:
-    version: "15"
-
-  volume:
-    size: 10Gi
-    storageClass: ckn-gcp-sc
-
-  users:
-    cknexus:
-      - superuser
-      - createdb
-
-  databases:
-    ckservicedb: cknexus
-
-serviceAccountName: postgres-backup apiVersion: acid.zalan.do/v1
-kind: postgresql
-metadata:
-  name: ck-postgres
-  namespace: codekarma
 
 spec:
   teamId: flipkart
@@ -50,7 +25,7 @@ spec:
   databases:
     ckservicedb: cknexus
 
-  env:                                  
+  env:                                  # ✅ MUST be under spec
     - name: USE_WALG_BACKUP
       value: "true"
 
@@ -58,21 +33,8 @@ spec:
       value: "gs://ck-flipkart-pg-storage-bucket/prod"
 
     - name: BACKUP_SCHEDULE
-      value: "* * * * *"   
+      value: "* * * * *"   # ⛔ not every minute
 
-  patroni:                              
+  patroni:                              # ✅ MUST be under spec
     pg_hba:
       - host all all 0.0.0.0/0 md5
-
-env:
-    
-  - name: BACKUP_SCHEDULE
-    value: "* * * * *"
-  - name: USE_WALG_BACKUP
-    value: "true"
-  - name: WALG_GS_PREFIX
-    value: "gs://ck-flipkart-pg-storage-bucket/prod"
-
-patroni:
-  pg_hba:
-    - host all all 0.0.0.0/0 md5
