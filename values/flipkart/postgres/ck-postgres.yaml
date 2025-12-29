@@ -24,15 +24,18 @@ spec:
           serviceAccountName: postgres-walg
           restartPolicy: OnFailure
           containers:
-            - name: backup
-              image: bitnami/kubectl:latest
+            - name: wal-g-backup
+              image: ghcr.io/zalando/spilo-16:3.3-p1
               command:
-                - /bin/sh
+                - /bin/bash
                 - -c
                 - |
-                  kubectl exec -n codekarma ck-postgres-0 -- \
-                    wal-g backup-push /home/postgres/pgdata
-
+                  wal-g backup-push /home/postgres/pgdata
+              env:
+                - name: USE_WALG_BACKUP
+                  value: "true"
+                - name: WAL_GS_PREFIX
+                  value: "gs://ck-flipkart-pg-storage-bucket"
 
 ---
 apiVersion: acid.zalan.do/v1
