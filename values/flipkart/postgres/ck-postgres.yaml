@@ -34,7 +34,7 @@ spec:
               env:
                 - name: USE_WALG_BACKUP
                   value: "true"
-                - name: WAL_GS_BUCKET
+                - name: WAL_GS_PREFIX
                   value: "gs://ck-flipkart-pg-storage-bucket"
 
 ---
@@ -67,5 +67,5 @@ spec:
     - name: USE_WALG_BACKUP
       value: "true"
 
-    - name: WAL_GS_BUCKET
+    - name: WAL_GS_PREFIX
       value: "gs://ck-flipkart-pg-storage-bucket"
