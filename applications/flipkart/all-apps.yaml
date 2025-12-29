@@ -143,7 +143,7 @@ spec:
   source:
     repoURL: "https://github.com/firgga-sunil/ck-flipkart-helm-charts.git"
     targetRevision: main
-    path: applications/flipkart/postgres
+    path: values/flipkart/postgres
     directory:
       recurse: true
 
