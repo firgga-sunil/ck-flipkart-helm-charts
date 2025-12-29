@@ -114,10 +114,10 @@ spec:
   source:
     repoURL: "https://github.com/firgga-sunil/ck-flipkart-helm-charts.git"
     targetRevision: main
-    path: "./charts/postgres-cluster"
+    path: "./charts/postgres-operator"
     helm:
       valueFiles:
-        - ck-postgres.yaml
+        - "./charts/postgres-operator/values.yaml"
   destination:
     server: https://kubernetes.default.svc
     namespace: postgres-operator
@@ -127,8 +127,34 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
-  
+--- 
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: postgres-cluster
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
 
+spec:
+  project: default
+
+  source:
+    repoURL: "https://github.com/firgga-sunil/ck-flipkart-helm-charts.git"
+    targetRevision: main
+    path: applications/flipkart/postgres
+    directory:
+      recurse: true
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: codekarma
+
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: true
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
