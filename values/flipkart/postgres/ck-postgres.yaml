@@ -22,4 +22,16 @@ spec:
 
   databases:
     ckservicedb: cknexus
-  
+
+env:
+    
+  - name: BACKUP_SCHEDULE
+    value: "0 */6 * * *"
+  - name: USE_WALG_BACKUP
+    value: "true"
+  - name: WALG_GS_PREFIX
+    value: "gs://ck-flipkart-pg-storage-bucket/prod"
+
+patroni:
+  pg_hba:
+    - host all all 0.0.0.0/0 md5
