@@ -30,7 +30,8 @@ spec:
                 - /bin/bash
                 - -c
                 - |
-                  wal-g backup-push /home/postgres/pgdata
+                  kubectl exec ck-postgres-0 -n codekarma -- \
+                    wal-g backup-push /home/postgres/pgdata
               env:
                 - name: USE_WALG_BACKUP
                   value: "true"
