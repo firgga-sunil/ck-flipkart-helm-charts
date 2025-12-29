@@ -22,12 +22,12 @@ spec:
 
   databases:
     ckservicedb: cknexus
-    
+
 serviceAccountName: postgres-backup 
 env:
     
   - name: BACKUP_SCHEDULE
-    value: "*/1 * * * *"
+    value: "* * * * *"
   - name: USE_WALG_BACKUP
     value: "true"
   - name: WALG_GS_PREFIX
