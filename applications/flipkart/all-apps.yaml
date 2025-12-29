@@ -117,7 +117,7 @@ spec:
     path: "./charts/postgres-operator"
     helm:
       valueFiles:
-        - "./charts/postgres-operator/values.yaml"
+        - values.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: postgres-operator
