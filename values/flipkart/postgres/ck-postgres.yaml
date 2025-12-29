@@ -7,6 +7,37 @@ metadata:
   annotations:
     iam.gke.io/gcp-service-account: codekarma-dev-node-sa@ck-flipkart-pg.iam.gserviceaccount.com
 ---
+
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: postgres-walg-backup
+  namespace: codekarma
+spec:
+  schedule: "*/5 * * * *"   # Every day at 02:00
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: postgres-walg
+          restartPolicy: OnFailure
+          containers:
+            - name: wal-g-backup
+              image: ghcr.io/zalando/spilo-15:3.2-p2
+              command:
+                - /bin/bash
+                - -c
+                - |
+                  wal-g backup-push /home/postgres/pgdata
+              env:
+                - name: USE_WALG_BACKUP
+                  value: "true"
+                - name: WAL_GS_BUCKET
+                  value: "ck-flipkart-pg-storage-bucket"
+
+---
 apiVersion: acid.zalan.do/v1
 kind: postgresql
 metadata:
