@@ -31,7 +31,8 @@ spec:
 
   databases:
     ckservicedb: cknexus
-    env:
+  
+  env:
     - name: USE_WALG_BACKUP
       value: "true"
 
