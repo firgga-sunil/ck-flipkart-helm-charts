@@ -32,12 +32,7 @@ spec:
                 - |
                   kubectl exec -n codekarma ck-postgres-0 -- \
                     wal-g backup-push /home/postgres/pgdata
-              restartPolicy: OnFailure
-              env:
-                - name: USE_WALG_BACKUP
-                  value: "true"
-                - name: WAL_GS_PREFIX
-                  value: "gs://ck-flipkart-pg-storage-bucket"
+
 
 ---
 apiVersion: acid.zalan.do/v1
