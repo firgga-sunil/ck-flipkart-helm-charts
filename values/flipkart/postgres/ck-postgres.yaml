@@ -9,7 +9,7 @@ spec:
   teamId: flipkart
   numberOfInstances: 2
 
-  serviceAccountName: postgres-backup   
+  # serviceAccountName: postgres-backup   
 
   postgresql:
     version: "15"
