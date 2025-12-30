@@ -35,14 +35,6 @@ spec:
     - name: BACKUP_SCHEDULE
       value: "* * * * *"   # ⛔ not every minute
 
-    - name: PGUSER
-      value: postgres
-
-    - name: PGPASSWORD
-      valueFrom:
-        secretKeyRef:
-          name: ck-postgres.credentials.postgresql.acid.zalan.do
-          key: password  
 
   patroni:                              # ✅ MUST be under spec
     pg_hba:
