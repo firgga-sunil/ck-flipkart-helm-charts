@@ -9,8 +9,7 @@ spec:
   teamId: flipkart
   numberOfInstances: 2
 
-  # serviceAccountName: postgres-backup   
-
+  serviceAccountName: postgres-pod
   postgresql:
     version: "15"
 
@@ -22,7 +21,9 @@ spec:
     cknexus:
       - superuser
       - createdb
-
+  env:
+    - name: WAL_GS_BUCKET
+      value: "ck-flipkart-pg-storage-bucket/prod"
   databases:
     ckservicedb: cknexus
 
@@ -30,7 +31,7 @@ spec:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: postgres-backup
+  name: postgres-pod
   namespace: codekarma
   annotations:
     iam.gke.io/gcp-service-account: codekarma-dev-node-sa@ck-flipkart-pg.iam.gserviceaccount.com
