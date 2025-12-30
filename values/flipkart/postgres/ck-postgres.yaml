@@ -6,7 +6,7 @@ metadata:
 
 spec:
   teamId: flipkart
-  numberOfInstances: 3
+  numberOfInstances: 1
 
   serviceAccountName: postgres-backup   
 
