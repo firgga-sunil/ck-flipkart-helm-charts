@@ -36,9 +36,9 @@ spec:
       value: "* * * * *"   
 
 
-  patroni:                              
-    pg_hba:
-      - host all all 0.0.0.0/0 md5
+  # patroni:                              
+  #   pg_hba:
+  #     - host all all 0.0.0.0/0 md5
 
 ---
 apiVersion: v1
