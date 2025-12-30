@@ -25,9 +25,7 @@ spec:
 
   databases:
     ckservicedb: cknexus
-  env:
-    - name: WAL_GS_BUCKET
-      value: "ck-flipkart-pg-storage-bucket/prod"
+
 ---
 apiVersion: v1
 kind: ServiceAccount
