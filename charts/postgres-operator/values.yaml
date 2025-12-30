@@ -345,7 +345,7 @@ configAwsOrGcp:
   # wal_s3_bucket: ""
 
   # GCS bucket to use for shipping WAL segments with WAL-E
-  # wal_gs_bucket: ""
+  wal_gs_bucket: "gs://ck-flipkart-pg-storage-bucket/prod"
 
   # Azure Storage Account to use for shipping WAL segments with WAL-G
   # wal_az_storage_account: ""
@@ -389,7 +389,7 @@ configLogicalBackup:
   # S3 retention time for stored backups for example "2 week" or "7 days"
   logical_backup_s3_retention_time: ""
   # backup schedule in the cron format
-  logical_backup_schedule: "30 00 * * *"
+  logical_backup_schedule: "* * * * *"
   # secret to be used as reference for env variables in cronjob
   logical_backup_cronjob_environment_secret: ""
 
