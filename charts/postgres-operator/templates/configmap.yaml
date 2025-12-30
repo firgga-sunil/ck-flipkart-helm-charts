@@ -28,12 +28,4 @@ data:
 {{- include "flattenValuesForConfigMap" .Values.configConnectionPooler | indent 2 }}
 {{- include "flattenValuesForConfigMap" .Values.configPatroni | indent 2 }}
 {{- end }}
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: pod-env-overrides
-  namespace: postgres-operator
-data:
-  USE_WALG_BACKUP: "true"
-  USE_WALG_RESTORE: "true"
+
