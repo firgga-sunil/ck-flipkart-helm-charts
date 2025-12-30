@@ -345,7 +345,7 @@ configAwsOrGcp:
   # wal_s3_bucket: ""
 
   # # GCS bucket to use for shipping WAL segments with WAL-E
-  wal_gs_bucket: "ck-flipkart-pg-storage-bucket/prod"
+  wal_gs_bucket: "ck-flipkart-pg-storage-bucket/prod/"
 
   # Azure Storage Account to use for shipping WAL segments with WAL-G
   # wal_az_storage_account: ""

@@ -23,7 +23,7 @@ spec:
       - createdb
   env:
     - name: WAL_GS_BUCKET
-      value: "ck-flipkart-pg-storage-bucket/prod"
+      value: "ck-flipkart-pg-storage-bucket/prod/"
   databases:
     ckservicedb: cknexus
 
