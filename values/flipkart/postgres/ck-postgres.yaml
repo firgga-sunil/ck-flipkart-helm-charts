@@ -8,7 +8,7 @@ spec:
   teamId: flipkart
   numberOfInstances: 3
 
-  serviceAccountName: postgres-backup   # ✅ MUST be under spec
+  serviceAccountName: postgres-backup   
 
   postgresql:
     version: "15"
@@ -25,7 +25,7 @@ spec:
   databases:
     ckservicedb: cknexus
 
-  env:                                  # ✅ MUST be under spec
+  env:                                  
     - name: USE_WALG_BACKUP
       value: "true"
 
@@ -33,9 +33,9 @@ spec:
       value: "gs://ck-flipkart-pg-storage-bucket/prod"
 
     - name: BACKUP_SCHEDULE
-      value: "* * * * *"   # ⛔ not every minute
+      value: "* * * * *"   
 
 
-  patroni:                              # ✅ MUST be under spec
+  patroni:                              
     pg_hba:
       - host all all 0.0.0.0/0 md5
