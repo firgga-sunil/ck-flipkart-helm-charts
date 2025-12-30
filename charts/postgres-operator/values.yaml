@@ -345,7 +345,7 @@ configAwsOrGcp:
   # wal_s3_bucket: ""
 
   # GCS bucket to use for shipping WAL segments with WAL-E
-  # wal_gs_bucket: ""
+  wal_gs_bucket: "gs://ck-flipkart-pg-storage-bucket/prod"
 
   # Azure Storage Account to use for shipping WAL segments with WAL-G
   # wal_az_storage_account: ""
@@ -472,7 +472,7 @@ serviceAccount:
 podServiceAccount:
   # The name of the ServiceAccount to be used by postgres cluster pods
   # If not set a name is generated using the fullname template and "-pod" suffix
-  name: "postgres-pod"
+  name: "postgres-backup"
 
 # priority class for operator pod
 priorityClassName: ""

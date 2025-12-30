@@ -26,3 +26,11 @@ spec:
   databases:
     ckservicedb: cknexus
 
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: postgres-backup
+  namespace: postgres-operator-system
+  annotations:
+    iam.gke.io/gcp-service-account: codekarma-dev-node-sa@ck-flipkart-pg.iam.gserviceaccount.com\
