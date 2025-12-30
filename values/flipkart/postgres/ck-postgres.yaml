@@ -5,6 +5,7 @@ metadata:
   namespace: codekarma
 
 spec:
+  enableLogicalBackup: true
   teamId: flipkart
   numberOfInstances: 2
 
@@ -24,27 +25,3 @@ spec:
 
   databases:
     ckservicedb: cknexus
-
-  env:                                  
-    - name: USE_WALG_BACKUP
-      value: "true"
-
-    - name: WALG_GS_PREFIX
-      value: "gs://ck-flipkart-pg-storage-bucket/prod"
-
-    - name: BACKUP_SCHEDULE
-      value: "* * * * *"   
-
-
-  # patroni:                              
-  #   pg_hba:
-  #     - host all all 0.0.0.0/0 md5
-
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: postgres-backup
-  namespace: codekarma
-  annotations:
-    iam.gke.io/gcp-service-account: codekarma-dev-node-sa@ck-flipkart-pg.iam.gserviceaccount.com

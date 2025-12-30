@@ -4,6 +4,8 @@ kind: ConfigMap
 metadata:
   name: {{ template "postgres-operator.fullname" . }}
   namespace: {{ .Release.Namespace }}
+  annotations:
+    iam.gke.io/gcp-service-account: codekarma-dev-node-sa@ck-flipkart-pg.iam.gserviceaccount.com
   labels:
     app.kubernetes.io/name: {{ template "postgres-operator.name" . }}
     helm.sh/chart: {{ template "postgres-operator.chart" . }}
