@@ -21,7 +21,7 @@ spec:
       image:
         registry: ghcr.io
         repository: zalando/postgres-operator
-        tag: v1.15.
+        tag: v1.15.1
       env:
         - name: PGPASSWORD
           valueFrom:
