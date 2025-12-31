@@ -10,7 +10,6 @@ spec:
   numberOfInstances: 2
   imagePullSecrets:
     - name: ckn-ghcr-secret
-  dockerImage: ghcr.io/ckgitrepouser/prod/postgres-operator:latest
   # additionalVolumes:
   #   - name: sql-scripts-volume
   #     mountPath: /scripts
