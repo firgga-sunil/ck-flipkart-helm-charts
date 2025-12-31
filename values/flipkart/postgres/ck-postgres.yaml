@@ -8,7 +8,29 @@ spec:
   enableLogicalBackup: true
   teamId: flipkart
   numberOfInstances: 2
-
+  additionalVolumes:
+    - name: sql-scripts-volume
+      mountPath: /scripts
+      targetContainers:
+        - init-sql
+      volumeSource:
+        configMap:
+          name: ck-postgres-init-sql
+  initContainers:
+    - name: init-sql-script
+      image:
+        registry: ghcr.io
+        repository: zalando/postgres-operator
+        tag: v1.15.
+      env:
+        - name: PGPASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: cknexus.ck-postgres.credentials.postgresql.acid.zalan.do
+              key: password
+      volumeMounts:
+        - name: init-script-volume
+          mountPath: /init-scripts
   serviceAccountName: postgres-pod
   postgresql:
     version: "15"
