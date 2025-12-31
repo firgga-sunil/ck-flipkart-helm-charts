@@ -11,15 +11,15 @@ spec:
   imagePullSecrets:
     - name: ckn-ghcr-secret
   dockerImage: ghcr.io/ckgitrepouser/prod/postgres-operator:latest
-  additionalVolumes:
-    - name: sql-scripts-volume
-      mountPath: /scripts
-      targetContainers:
-        - init-sql
-      volumeSource:
-        configMap:
-          name: ck-postgres-init-sql
-  # initContainers:
+  # additionalVolumes:
+  #   - name: sql-scripts-volume
+  #     mountPath: /scripts
+  #     targetContainers:
+  #       - init-sql
+  #     volumeSource:
+  #       configMap:
+  #         name: ck-postgres-init-sql
+  # # initContainers:
   #   - name: init-sql-script
   #     image: "postgres:15"
   #     env:
