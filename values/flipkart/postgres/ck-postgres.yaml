@@ -18,10 +18,7 @@ spec:
           name: ck-postgres-init-sql
   initContainers:
     - name: init-sql-script
-      image:
-        registry: ghcr.io
-        repository: zalando/postgres-operator
-        tag: v1.15.1
+      image: "ghcr.io/zalando/postgres-operator:v1.15.1"
       env:
         - name: PGPASSWORD
           valueFrom:
