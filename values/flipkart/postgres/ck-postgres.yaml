@@ -8,8 +8,7 @@ spec:
   enableLogicalBackup: true
   teamId: flipkart
   numberOfInstances: 2
-  imagePullSecrets:
-    - name: ckn-ghcr-secret
+
   # additionalVolumes:
   #   - name: sql-scripts-volume
   #     mountPath: /scripts
