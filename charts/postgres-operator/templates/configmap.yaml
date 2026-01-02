@@ -10,8 +10,6 @@ metadata:
     app.kubernetes.io/managed-by: {{ .Release.Service }}
     app.kubernetes.io/instance: {{ .Release.Name }}
 data:
-  01-init.sql: |-
-{{ .Files.Get "init/01-init.sql" | indent 4 }}
 {{- if or .Values.podPriorityClassName.create .Values.podPriorityClassName.name }}
   pod_priority_class_name: {{ include "postgres-pod.priorityClassName" . }}
 {{- end }}
@@ -30,3 +28,11 @@ data:
 {{- include "flattenValuesForConfigMap" .Values.configConnectionPooler | indent 2 }}
 {{- include "flattenValuesForConfigMap" .Values.configPatroni | indent 2 }}
 {{- end }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ck-postgres-init
+data:
+  01-init.sql: |-
+{{ .Files.Get "init/01-init.sql" | nindent 4 }}
