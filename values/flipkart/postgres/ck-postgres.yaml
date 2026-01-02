@@ -10,13 +10,6 @@ spec:
   numberOfInstances: 2
   imagePullSecrets:
     - name: ckn-ghcr-secret
-  podSpec:
-    additionalVolumes:
-      - name: init-scripts
-        mountPath: /docker-entrypoint-initdb.d
-        configMap:
-          # This MUST be the name of your ConfigMap
-          name: ck-postgres-init
   serviceAccountName: postgres-pod
   postgresql:
     version: "15"
