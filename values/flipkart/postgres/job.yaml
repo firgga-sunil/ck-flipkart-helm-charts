@@ -1,0 +1,35 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: ck-postgres-init
+  namespace: codekarma
+spec:
+  backoffLimit: 5
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: psql
+          image: postgres:15
+          env:
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: ck-postgres.postgres.credentials.postgresql.acid.zalan.do
+                  key: password
+          command:
+            - sh
+            - -c
+            - |
+              until pg_isready -h ck-postgres -U cknexus; do
+                echo "Waiting for postgres..."
+                sleep 5
+              done
+              psql -h ck-postgres -U cknexus -d ckservicedb -f /sql/init.sql
+          volumeMounts:
+            - name: sql
+              mountPath: /sql
+      volumes:
+        - name: sql
+          configMap:
+            name: ck-postgres-init-sql

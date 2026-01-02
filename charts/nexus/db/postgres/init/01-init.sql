@@ -1,0 +1,199 @@
+CREATE TABLE IF NOT EXISTS domain_graph_path (
+	domain_name text NOT NULL,
+	service_name text NOT NULL,
+	path_key text NOT NULL,
+	incoming_path text DEFAULT ''::text NULL,
+	element_id text NOT NULL,
+	runtime text DEFAULT ''::text NOT NULL,
+	created_date timestamp DEFAULT CURRENT_TIMESTAMP NULL,
+	last_updated_date timestamp DEFAULT CURRENT_TIMESTAMP NULL,
+	CONSTRAINT domain_graph_path_pkey PRIMARY KEY (domain_name, service_name, path_key)
+);
+
+CREATE TABLE IF NOT EXISTS element_info (
+	id text NOT NULL,
+	service_name text NOT NULL,
+	domain_name text DEFAULT 'default_text' NOT NULL,
+	"type" text NOT NULL,
+    runtime text DEFAULT 'default_text' NOT NULL,
+	graph_path_payload jsonb NOT NULL,
+	created_date timestamp DEFAULT CURRENT_TIMESTAMP NULL,
+	last_updated_date timestamp DEFAULT CURRENT_TIMESTAMP NULL,
+	CONSTRAINT element_info_pkey PRIMARY KEY (id, service_name, domain_name)
+);
+
+CREATE TABLE IF NOT EXISTS domain_ignore_path (
+    id BIGSERIAL PRIMARY KEY,
+    domain VARCHAR(255) NOT NULL,
+    service_name VARCHAR(255) NOT NULL,
+    ignore_path VARCHAR(255) NOT NULL,
+    created_date timestamp DEFAULT CURRENT_TIMESTAMP NULL,
+	last_updated_date timestamp DEFAULT CURRENT_TIMESTAMP NULL,
+
+    -- Unique constraint for domain, service_name, and ignore_path combination
+    CONSTRAINT uk_domain_service_ignore_path UNIQUE (domain, service_name, ignore_path)
+);
+
+-- User logins table - tracks login counts per (email, client_type) combination
+-- Client type format:
+-- - 'dashboard' for web dashboard logins  
+-- - 'plugin:xyz' for IDE plugin logins (e.g., plugin:jetbrains, plugin:vscode, plugin:cursor)
+-- - 'mcp:xyz' for MCP server logins (e.g., mcp:claude, mcp:cursor, mcp:windsurf)
+CREATE TABLE IF NOT EXISTS user_logins (
+    id BIGSERIAL PRIMARY KEY,
+    email VARCHAR(255) NOT NULL,
+    client_type VARCHAR(50) NOT NULL,
+    login_count INT DEFAULT 0,
+    created_date timestamp DEFAULT CURRENT_TIMESTAMP NULL,
+	last_updated_date timestamp DEFAULT CURRENT_TIMESTAMP NULL,
+	CONSTRAINT uk_email_client_type UNIQUE (email, client_type)
+);
+
+CREATE TABLE IF NOT EXISTS website_logins (
+    id BIGSERIAL PRIMARY KEY,
+    email VARCHAR(255) NOT NULL,
+    created_date timestamp DEFAULT CURRENT_TIMESTAMP NULL,
+	last_updated_date timestamp DEFAULT CURRENT_TIMESTAMP NULL,
+	CONSTRAINT wlogin_uk_email UNIQUE (email)
+);
+
+CREATE TABLE IF NOT EXISTS agent_configuration (
+    domain VARCHAR(255) NOT NULL,
+    service_name VARCHAR(255) NOT NULL,
+    pod_id text NOT NULL,
+    status VARCHAR(64) NOT NULL,
+	expiry_date DATE NOT NULL,
+    created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    last_updated_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (domain, service_name, pod_id)
+);
+
+CREATE TABLE IF NOT EXISTS domain_graph_wal (
+    id BIGSERIAL PRIMARY KEY,
+    domain_name TEXT NOT NULL,
+    service_name TEXT NOT NULL,
+    path_key TEXT NOT NULL,
+    operation VARCHAR(10) NOT NULL,
+    updated_by VARCHAR(10) NOT NULL,
+    created_at TIMESTAMP NOT NULL
+);
+-- Create index on created_at and operation
+CREATE INDEX IF NOT EXISTS idx_date_operation ON domain_graph_wal (created_at, operation);
+-- Create index on domain_name and path_key
+CREATE INDEX IF NOT EXISTS idx_domain_pathkey ON domain_graph_wal (domain_name, path_key);
+
+-- method_signatures definition
+
+CREATE TABLE IF NOT EXISTS method_signatures (
+    id BIGSERIAL PRIMARY KEY,
+    domain_name VARCHAR(100) NOT NULL,
+    service_name VARCHAR(100) NOT NULL,
+    method_details_hash INTEGER NOT NULL,
+    class_name VARCHAR(500) NOT NULL,
+    method_name TEXT NOT NULL,
+    method_name_only VARCHAR(255),
+    method_params TEXT[],
+    additional_info JSONB,
+    created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    last_updated_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    -- Unique constraint for domain, service, and method hash combination
+    CONSTRAINT uk_method_signature UNIQUE (domain_name, service_name, method_details_hash)
+);
+
+-- method_flow_nodes definition
+
+CREATE TABLE IF NOT EXISTS method_flow_nodes (
+    domain_name VARCHAR(100) NOT NULL,
+    service_name VARCHAR(100) NOT NULL,
+    flow_id INTEGER NOT NULL,
+    mpk INTEGER NOT NULL,
+    parent_mpk INTEGER,
+    method_signature_id BIGINT NOT NULL,
+    created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    last_updated_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    -- Composite primary key
+    PRIMARY KEY (domain_name, service_name, flow_id, mpk)
+);
+
+-- Create indexes for better query performance
+CREATE INDEX IF NOT EXISTS idx_method_signatures_domain_service ON method_signatures (domain_name, service_name);
+CREATE INDEX IF NOT EXISTS idx_method_signatures_hash ON method_signatures (method_details_hash);
+CREATE INDEX IF NOT EXISTS idx_method_flow_nodes_flow_id ON method_flow_nodes (domain_name, service_name, flow_id);
+CREATE INDEX IF NOT EXISTS idx_method_flow_nodes_parent ON method_flow_nodes (domain_name, service_name, flow_id, parent_mpk);
+CREATE INDEX IF NOT EXISTS idx_method_flow_nodes_signature ON method_flow_nodes (method_signature_id);
+
+-- Additional indexes for cross-service queries
+CREATE INDEX IF NOT EXISTS idx_method_signatures_domain_class ON method_signatures (domain_name, class_name);
+CREATE INDEX IF NOT EXISTS idx_method_signatures_domain_class_method ON method_signatures (domain_name, class_name, method_name_only);
+CREATE INDEX IF NOT EXISTS idx_method_flow_nodes_domain ON method_flow_nodes (domain_name);
+
+-- profiled_method_signatures definition
+
+CREATE TABLE IF NOT EXISTS profiled_method_signatures (
+    id BIGSERIAL PRIMARY KEY,
+    domain_name VARCHAR(100) NOT NULL,
+    service_name VARCHAR(100) NOT NULL,
+    method_details_hash INTEGER NOT NULL,
+    class_name VARCHAR(500) NOT NULL,
+    method_name TEXT NOT NULL,
+    method_name_only VARCHAR(255),
+    method_params TEXT[],
+    additional_info JSONB,
+    created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    last_updated_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    -- Unique constraint for domain, service, and method hash combination
+    CONSTRAINT uk_profiled_method_signature UNIQUE (domain_name, service_name, method_details_hash)
+);
+
+-- profiled_method_flow_nodes definition
+
+CREATE TABLE IF NOT EXISTS profiled_method_flow_nodes (
+    domain_name VARCHAR(100) NOT NULL,
+    service_name VARCHAR(100) NOT NULL,
+    flow_id INTEGER NOT NULL,
+    mpk INTEGER NOT NULL,
+    parent_mpk INTEGER,
+    profiled_method_signature_id BIGINT NOT NULL,
+    created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    last_updated_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    -- Composite primary key
+    PRIMARY KEY (domain_name, service_name, flow_id, mpk)
+);
+
+-- Create indexes for better query performance on profiled tables
+CREATE INDEX IF NOT EXISTS idx_profiled_method_signatures_domain_service ON profiled_method_signatures (domain_name, service_name);
+CREATE INDEX IF NOT EXISTS idx_profiled_method_signatures_hash ON profiled_method_signatures (method_details_hash);
+CREATE INDEX IF NOT EXISTS idx_profiled_method_flow_nodes_flow_id ON profiled_method_flow_nodes (domain_name, service_name, flow_id);
+CREATE INDEX IF NOT EXISTS idx_profiled_method_flow_nodes_parent ON profiled_method_flow_nodes (domain_name, service_name, flow_id, parent_mpk);
+CREATE INDEX IF NOT EXISTS idx_profiled_method_flow_nodes_signature ON profiled_method_flow_nodes (profiled_method_signature_id);
+
+-- Additional indexes for cross-service queries on profiled data
+CREATE INDEX IF NOT EXISTS idx_profiled_method_signatures_domain_class ON profiled_method_signatures (domain_name, class_name);
+CREATE INDEX IF NOT EXISTS idx_profiled_method_signatures_domain_class_method ON profiled_method_signatures (domain_name, class_name, method_name_only);
+CREATE INDEX IF NOT EXISTS idx_profiled_method_flow_nodes_domain ON profiled_method_flow_nodes (domain_name);
+
+-- method_fc_info definition (v2 frequency cohort mapping)
+
+CREATE TABLE IF NOT EXISTS method_fc_info (
+    domain_name VARCHAR(100) NOT NULL,
+    service_name VARCHAR(100) NOT NULL,
+    flow_id INTEGER NOT NULL,
+    fc INTEGER NOT NULL,
+    mpk INTEGER NOT NULL,
+    created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    last_updated_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    -- Composite primary key ensures one row per (domain, service, flow, fc, mpk)
+    PRIMARY KEY (domain_name, service_name, flow_id, fc, mpk)
+);
+
+-- Indexes to support common queries
+CREATE INDEX IF NOT EXISTS idx_method_fc_info_domain_service ON method_fc_info (domain_name, service_name);
+CREATE INDEX IF NOT EXISTS idx_method_fc_info_flow ON method_fc_info (domain_name, service_name, flow_id);
+CREATE INDEX IF NOT EXISTS idx_method_fc_info_flow_mpk ON method_fc_info (domain_name, service_name, flow_id, mpk);
+CREATE INDEX IF NOT EXISTS idx_method_fc_info_flow_fc ON method_fc_info (domain_name, service_name, flow_id, fc);
+
