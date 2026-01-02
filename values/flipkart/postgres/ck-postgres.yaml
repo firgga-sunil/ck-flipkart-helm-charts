@@ -10,36 +10,12 @@ spec:
   numberOfInstances: 2
   imagePullSecrets:
     - name: ckn-ghcr-secret
-  # additionalVolumes:
-  #   - name: sql-scripts-volume
-  #     mountPath: /scripts
-  #     targetContainers:
-  #       - init-sql
-  #     volumeSource:
-  #       configMap:
-  #         name: ck-postgres-init-sql
-  # # initContainers:
-  #   - name: init-sql-script
-  #     image: "postgres:15"
-  #     env:
-  #       - name: PGPASSWORD
-  #         valueFrom:
-  #           secretKeyRef:
-  #             name: cknexus.ck-postgres.credentials.postgresql.acid.zalan.do
-  #             key: password
-  #     volumeMounts:
-  #       - name: sql-scripts-volume
-  #         mountPath: /scripts
-      # command: 
-      #   - /bin/sh
-      #   - -c
-      #   - |
-      #     until pg_isready -h ck-postgres -U cknexus; do
-      #       echo "Waiting for postgres..."
-      #       sleep 2
-      #     done
-      #     # Match the filename in your ConfigMap
-      #     psql -h ck-postgres -U cknexus -d ckservicedb -f /scripts/01-init.sql
+  additionalVolumes:
+    - name: init-scripts
+      mountPath: /docker-entrypoint-initdb.d
+      configMap:
+        # This MUST be the name of your ConfigMap
+        name: ck-postgres-init
   serviceAccountName: postgres-pod
   postgresql:
     version: "15"
