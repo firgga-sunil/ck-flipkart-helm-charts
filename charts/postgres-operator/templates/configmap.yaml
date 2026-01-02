@@ -11,7 +11,7 @@ metadata:
     app.kubernetes.io/instance: {{ .Release.Name }}
 data:
   01-init.sql: |-
-  {{ .Files.Get "init/01-init.sql" | indent 4 }}
+{{ .Files.Get "init/01-init.sql" | indent 4 }}
 {{- if or .Values.podPriorityClassName.create .Values.podPriorityClassName.name }}
   pod_priority_class_name: {{ include "postgres-pod.priorityClassName" . }}
 {{- end }}
