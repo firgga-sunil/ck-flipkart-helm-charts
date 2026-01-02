@@ -28,11 +28,3 @@ data:
 {{- include "flattenValuesForConfigMap" .Values.configConnectionPooler | indent 2 }}
 {{- include "flattenValuesForConfigMap" .Values.configPatroni | indent 2 }}
 {{- end }}
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: ck-postgres-init
-data:
-  01-init.sql: |-
-{{ .Files.Get "init/01-init.sql" | nindent 4 }}
