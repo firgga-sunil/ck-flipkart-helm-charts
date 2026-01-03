@@ -114,7 +114,7 @@ spec:
   source:
     repoURL: "https://github.com/firgga-sunil/ck-flipkart-helm-charts.git"
     targetRevision: main
-    path: "./charts/postgres-operator"
+    path: "./charts/nexus/postgres-operator"
     helm:
       valueFiles:
         - values.yaml
@@ -143,7 +143,7 @@ spec:
   source:
     repoURL: "https://github.com/firgga-sunil/ck-flipkart-helm-charts.git"
     targetRevision: main
-    path: values/flipkart/postgres
+    path: values/flipkart/nexus/postgres
     directory:
       recurse: true
 
