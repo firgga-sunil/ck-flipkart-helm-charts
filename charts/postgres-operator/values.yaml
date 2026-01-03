@@ -391,7 +391,7 @@ configLogicalBackup:
   # backup schedule in the cron format
   logical_backup_schedule: "* * * * *"
   # secret to be used as reference for env variables in cronjob
-  logical_backup_cronjob_environment_secret: ""
+  logical_backup_cronjob_environment_secret: "ckn-ghcr-secret"
 
 # automate creation of human users with teams API service
 configTeamsApi:
