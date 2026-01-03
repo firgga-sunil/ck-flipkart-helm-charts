@@ -369,7 +369,7 @@ configLogicalBackup:
   # logical_backup_google_application_credentials: ""
 
   # prefix for the backup job name
-  logical_backup_job_prefix: "logical-backup-"
+  logical_backup_job_prefix: "logical-backup"
   # storage provider - either "s3", "gcs" or "az"
   logical_backup_provider: "gcs"
   # S3 Access Key ID
@@ -467,6 +467,8 @@ serviceAccount:
   create: true
   # The name of the ServiceAccount to use.
   # If not set and create is true, a name is generated using the fullname template
+  imagePullSecrets:
+    - ckn-ghcr-secret
   name:
 
 podServiceAccount:
