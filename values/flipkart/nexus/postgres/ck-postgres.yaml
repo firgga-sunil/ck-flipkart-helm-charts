@@ -22,9 +22,9 @@ spec:
     cknexus:
       - superuser
       - createdb
-  env:
-    - name: WAL_GS_BUCKET
-      value: "ck-flipkart-pg-storage-bucket/prod/"
+  # env:
+  #   - name: WAL_GS_BUCKET
+  #     value: "ck-flipkart-pg-storage-bucket/prod/"
   databases:
     ckservicedb: cknexus
 
