@@ -22,15 +22,15 @@ spec:
     cknexus:
       - superuser
       - createdb
+  # # env:
+  # #   
   # env:
-  #   
-  env:
-    - name: USE_WALG_RESTORE
-      value: "false"
-    - name: USE_WALG_BACKUP
-      value: "false"
-    - name: WAL_GS_BUCKET
-      value: "ck-flipkart-pg-storage-bucket/prod"
+  #   - name: USE_WALG_RESTORE
+  #     value: "false"
+  #   - name: USE_WALG_BACKUP
+  #     value: "false"
+  #   - name: WAL_GS_BUCKET
+  #     value: "ck-flipkart-pg-storage-bucket/prod"
   databases:
     ckservicedb: cknexus
 
