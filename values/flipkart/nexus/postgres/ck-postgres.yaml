@@ -8,6 +8,8 @@ spec:
   enableLogicalBackup: true
   teamId: flipkart
   numberOfInstances: 2
+  standby:
+    s3_wal_path: "ck-flipkart-pg-storage-bucket"
   imagePullSecrets:
     - name: ckn-ghcr-secret
   serviceAccountName: postgres-pod
@@ -35,8 +37,4 @@ metadata:
   annotations:
     iam.gke.io/gcp-service-account: codekarma-dev-node-sa@ck-flipkart-pg.iam.gserviceaccount.com
 imagePullSecrets:
-<<<<<<< HEAD
   - name: ckn-ghcr-secret
-=======
-  - name: ckn-ghcr-secret
->>>>>>> 853abea5a12b228ad270206397cc7b7a1a23d302

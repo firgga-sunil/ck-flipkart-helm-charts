@@ -342,7 +342,7 @@ configAwsOrGcp:
   # log_s3_bucket: ""
 
   # S3 bucket to use for shipping WAL segments with WAL-E
-  # wal_s3_bucket: ""
+  # wal_s3_bucket: ""f
 
   # # GCS bucket to use for shipping WAL segments with WAL-E
   wal_gs_bucket: "ck-flipkart-pg-storage-bucket"
