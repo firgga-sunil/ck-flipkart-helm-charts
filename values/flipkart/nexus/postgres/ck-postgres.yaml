@@ -12,7 +12,7 @@ spec:
     - name: ckn-ghcr-secret
   serviceAccountName: postgres-pod
   postgresql:
-    version: "17"
+    version: "15"
 
   volume:
     size: 10Gi
@@ -24,7 +24,7 @@ spec:
       - createdb
   # env:
   #   - name: WAL_GS_BUCKET
-  #     value: "ck-flipkart-pg-storage-bucket/prod/"
+  #     value: "ck-flipkart-pg-storage-bucket/prod"
   env:
     - name: USE_WALG_RESTORE
       value: "false"
