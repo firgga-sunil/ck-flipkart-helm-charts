@@ -345,7 +345,7 @@ configAwsOrGcp:
   # wal_s3_bucket: ""
 
   # # GCS bucket to use for shipping WAL segments with WAL-E
-  # wal_gs_bucket: "ck-flipkart-pg-storage-bucket"
+  wal_gs_bucket: "ck-flipkart-pg-storage-bucket"
 
   # Azure Storage Account to use for shipping WAL segments with WAL-G
   # wal_az_storage_account: ""
@@ -374,7 +374,7 @@ configLogicalBackup:
   # S3 Access Key ID
   logical_backup_s3_access_key_id: ""
   # S3 bucket to store backup results
-  logical_backup_s3_bucket: "ck-flipkart-pg-storage-bucket/prod/backup"
+  logical_backup_s3_bucket: "ck-flipkart-pg-storage-bucket/prod"
   # S3 bucket prefix to use
   logical_backup_s3_bucket_prefix: "logical-backup"
   # S3 region of bucket
