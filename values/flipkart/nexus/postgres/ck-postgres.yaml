@@ -1,38 +1,38 @@
-apiVersion: acid.zalan.do/v1
-kind: postgresql
-metadata:
-  name: ck-postgres
-  namespace: codekarma
+# apiVersion: acid.zalan.do/v1
+# kind: postgresql
+# metadata:
+#   name: ck-postgres
+#   namespace: codekarma
 
-spec:
-  enableLogicalBackup: true
-  teamId: flipkart
-  numberOfInstances: 2
-  imagePullSecrets:
-    - name: ckn-ghcr-secret
-  serviceAccountName: postgres-pod
-  postgresql:
-    version: "15"
-    
-  volume:
-    size: 10Gi
-    storageClass: ckn-gcp-sc
+# spec:
+#   enableLogicalBackup: true
+#   teamId: flipkart
+#   numberOfInstances: 2
+#   imagePullSecrets:
+#     - name: ckn-ghcr-secret
+#   serviceAccountName: postgres-pod
+#   postgresql:
+#     version: "15"
 
-  users:
-    cknexus:
-      - superuser
-      - createdb
+#   volume:
+#     size: 10Gi
+#     storageClass: ckn-gcp-sc
 
-  databases:
-    ckservicedb: cknexus
+#   users:
+#     cknexus:
+#       - superuser
+#       - createdb
 
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: postgres-pod
-  namespace: codekarma
-  annotations:
-    iam.gke.io/gcp-service-account: codekarma-dev-node-sa@ck-flipkart-pg.iam.gserviceaccount.com
-imagePullSecrets:
-  - name: ckn-ghcr-secret
+#   databases:
+#     ckservicedb: cknexus
+
+# ---
+# apiVersion: v1
+# kind: ServiceAccount
+# metadata:
+#   name: postgres-pod
+#   namespace: codekarma
+#   annotations:
+#     iam.gke.io/gcp-service-account: codekarma-dev-node-sa@ck-flipkart-pg.iam.gserviceaccount.com
+# imagePullSecrets:
+#   - name: ckn-ghcr-secret
