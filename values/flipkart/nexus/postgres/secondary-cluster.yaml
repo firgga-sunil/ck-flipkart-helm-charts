@@ -11,6 +11,7 @@ spec:
   clone:
     cluster: "ck-postgres"
     uid: "4b1f7ece-f375-4718-9a3b-e89c73d2a4f3"
+    timestamp: "2026-01-06T09:40:00+00:00"
   imagePullSecrets:
     - name: ckn-ghcr-secret
   serviceAccountName: postgres-pod
