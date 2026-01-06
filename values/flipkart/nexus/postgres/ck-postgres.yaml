@@ -8,8 +8,6 @@ spec:
   enableLogicalBackup: true
   teamId: flipkart
   numberOfInstances: 2
-  # standby:
-  #   s3_wal_path: "ck-flipkart-pg-storage-bucket"
   imagePullSecrets:
     - name: ckn-ghcr-secret
   serviceAccountName: postgres-pod
