@@ -1,35 +1,45 @@
-apiVersion: batch/v1
-kind: Job
-metadata:
-  name: ck-postgres-init
-  namespace: codekarma
-spec:
-  backoffLimit: 5
-  template:
-    spec:
-      restartPolicy: OnFailure
-      containers:
-        - name: psql
-          image: postgres:15
-          env:
-            - name: PGPASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: cknexus.ck-postgres.credentials.postgresql.acid.zalan.do
-                  key: password
-          command:
-            - sh
-            - -c
-            - |
-              until pg_isready -h ck-postgres -U cknexus; do
-                echo "Waiting for postgres..."
-                sleep 5
-              done
-              psql -h ck-postgres -U cknexus -d ckservicedb -f /sql/init.sql
-          volumeMounts:
-            - name: sql
-              mountPath: /sql
-      volumes:
-        - name: sql
-          configMap:
-            name: ck-postgres-init-sql
+# apiVersion: batch/v1
+# kind: Job
+# metadata:
+#   name: ck-postgres-init
+#   namespace: codekarma
+# spec:
+#   backoffLimit: 5
+#   template:
+#     spec:
+#       restartPolicy: OnFailure
+#       containers:
+#         - name: psql
+#           image: postgres:15
+#           env:
+#             - name: PGPASSWORD
+#               valueFrom:
+#                 secretKeyRef:
+#                   name: cknexus.ck-postgres.credentials.postgresql.acid.zalan.do
+#                   key: password
+#           command:
+#             - sh
+#             - -c
+#             - |
+#               # Wait for Network/Port Readiness
+#               until pg_isready -h ck-postgres -U cknexus; do
+#                 echo "Waiting for postgres port to be open..."
+#                 sleep 2
+#               done
+
+#               # Wait for Authentication Readiness
+#               echo "Testing authentication for user cknexus..."
+#               until psql -h ck-postgres -U cknexus -d ckservicedb -c "SELECT 1" > /dev/null 2>&1; do
+#                 echo "Authentication failed. The operator might still be syncing the password. Retrying in 5s..."
+#                 sleep 5
+#               done
+
+#               echo "Authentication successful! Running init script..."
+#               psql -h ck-postgres -U cknexus -d ckservicedb -f /sql/init.sql
+#           volumeMounts:
+#             - name: sql
+#               mountPath: /sql
+#       volumes:
+#         - name: sql
+#           configMap:
+#             name: ck-postgres-init-sql
