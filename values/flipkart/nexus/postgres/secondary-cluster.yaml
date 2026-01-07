@@ -11,6 +11,7 @@ spec:
   clone:
     enabled: true
     clusterName: ck-postgres
+    uid: "4b1f7ece-f375-4718-9a3b-e89c73d2a4f3"
   # standby:
   #   gs_wal_path: "gs://ck-flipkart-pg-storage-bucket//test/spilo/ck-postgres/4b1f7ece-f375-4718-9a3b-e89c73d2a4f3/wal/15"
   imagePullSecrets:
