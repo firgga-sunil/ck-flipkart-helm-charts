@@ -198,7 +198,7 @@ spec:
   source:
     repoURL: https://github.com/firgga-sunil/ck-flipkart-helm-charts.git
     targetRevision: main
-    path: "./values/flipkart/nexus/cloudnativepg/cluster.yaml"
+    path: "./values/flipkart/nexus/cloudnativepg"
 
   destination:
     server: https://kubernetes.default.svc
