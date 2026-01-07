@@ -1,44 +1,44 @@
-# apiVersion: acid.zalan.do/v1
-# kind: postgresql
-# metadata:
-#   name: ck-postgres
-#   namespace: codekarma
+apiVersion: acid.zalan.do/v1
+kind: postgresql
+metadata:
+  name: ck-postgres
+  namespace: codekarma
 
-# spec:
-#   enableLogicalBackup: true
-#   teamId: flipkart
-#   numberOfInstances: 2
-#   clone:
-#     cluster: ck-postgres
-#     uid: "4b1f7ece-f375-4718-9a3b-e89c73d2a4f3"
-#     timestamp: "2026-01-06T11:27:33+00:00"
-#   # standby:
-#   #   gs_wal_path: "gs://ck-flipkart-pg-storage-bucket//test/spilo/ck-postgres/4b1f7ece-f375-4718-9a3b-e89c73d2a4f3/wal/15"
-#   imagePullSecrets:
-#     - name: ckn-ghcr-secret
-#   serviceAccountName: postgres-pod
-#   postgresql:
-#     version: "15"
+spec:
+  enableLogicalBackup: true
+  teamId: flipkart
+  numberOfInstances: 2
+  clone:
+    cluster: ck-postgres
+    uid: "f78ee929-9bbf-4ef0-a7b5-c9ffa8577e82"
+    timestamp: "2026-01-07T14:26:08+00:00"
+  # standby:
+  #   gs_wal_path: "gs://ck-flipkart-pg-storage-bucket//test/spilo/ck-postgres/4b1f7ece-f375-4718-9a3b-e89c73d2a4f3/wal/15"
+  imagePullSecrets:
+    - name: ckn-ghcr-secret
+  serviceAccountName: postgres-pod
+  postgresql:
+    version: "15"
     
-#   volume:
-#     size: 10Gi
-#     storageClass: ckn-gcp-sc
+  volume:
+    size: 10Gi
+    storageClass: ckn-gcp-sc
 
-#   users:
-#     cknexus:
-#       - superuser
-#       - createdb
+  users:
+    cknexus:
+      - superuser
+      - createdb
 
-#   databases:
-#     ckservicedb: cknexus
+  databases:
+    ckservicedb: cknexus
 
-# ---
-# apiVersion: v1
-# kind: ServiceAccount
-# metadata:
-#   name: postgres-pod
-#   namespace: codekarma
-#   annotations:
-#     iam.gke.io/gcp-service-account: codekarma-dev-node-sa@ck-flipkart-pg.iam.gserviceaccount.com
-# imagePullSecrets:
-#   - name: ckn-ghcr-secret
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: postgres-pod
+  namespace: codekarma
+  annotations:
+    iam.gke.io/gcp-service-account: codekarma-dev-node-sa@ck-flipkart-pg.iam.gserviceaccount.com
+imagePullSecrets:
+  - name: ckn-ghcr-secret
