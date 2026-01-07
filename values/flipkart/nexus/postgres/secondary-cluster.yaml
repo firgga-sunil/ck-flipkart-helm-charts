@@ -22,6 +22,8 @@ spec:
   serviceAccountName: postgres-pod
   postgresql:
     version: "15"
+    parameters:
+      archive_timeout: "5min"
     
   volume:
     size: 10Gi
