@@ -11,8 +11,8 @@ spec:
   # clone:
     # cluster: ck-postgres
     # enabled: true
-  standby:
-    gs_wal_path: "gs://ck-flipkart-pg-storage-bucket/test/spilo/ck-postgres/f78ee929-9bbf-4ef0-a7b5-c9ffa8577e82/wal/15"
+  # standby:
+  #   gs_wal_path: "gs://ck-flipkart-pg-storage-bucket/test/spilo/ck-postgres/f78ee929-9bbf-4ef0-a7b5-c9ffa8577e82/wal/15"
     # uid: "f78ee929-9bbf-4ef0-a7b5-c9ffa8577e82"
 
   # standby:
