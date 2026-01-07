@@ -23,7 +23,7 @@ spec:
             - |
               until pg_isready -h ck-postgres -U cknexus; do
                 echo "Waiting for postgres..."
-                sleep 5
+                sleep 100
               done
               psql -h ck-postgres -U cknexus -d ckservicedb -f /sql/init.sql
           volumeMounts:
