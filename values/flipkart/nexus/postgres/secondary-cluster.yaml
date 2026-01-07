@@ -9,8 +9,8 @@ spec:
   teamId: flipkart
   numberOfInstances: 2
   clone:
-    cluster: ck-postgres
     uid: "f78ee929-9bbf-4ef0-a7b5-c9ffa8577e82"
+    gs_wal_path: "gs://ck-flipkart-pg-storage-bucket//test/spilo/ck-postgres/f78ee929-9bbf-4ef0-a7b5-c9ffa8577e82/wal/15"
     # timestamp: "2026-01-07T14:26:08"
   # standby:
   #   gs_wal_path: "gs://ck-flipkart-pg-storage-bucket//test/spilo/ck-postgres/4b1f7ece-f375-4718-9a3b-e89c73d2a4f3/wal/15"
