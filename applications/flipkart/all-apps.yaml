@@ -169,7 +169,7 @@ spec:
   source:
     repoURL: https://github.com/firgga-sunil/ck-flipkart-helm-charts.git
     targetRevision: main
-    path: "./charts/nexus/cloudnativepg/charts/cluster"
+    path: "./charts/nexus/cloudnativepg"
     helm:
       releaseName: cloudnativepg
       values: |
