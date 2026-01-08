@@ -2,7 +2,7 @@ apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
   name: app-postgres
-  namespace: cnpg-system
+  namespace: codekarma
 spec:
   instances: 3
 
