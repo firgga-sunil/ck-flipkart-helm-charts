@@ -33,7 +33,7 @@ spec:
       serviceAccountName: ck-postgres-sa
   backup:
     barmanObjectStore:
-      destinationPath: "gs://ck-flipkart-pg-storage-bucket/backups"
+      destinationPath: "gs://ck-flipkart-pg-storage-bucket/backups/"
       # 2. Set gkeEnvironment to true
       googleCredentials:
         gkeEnvironment: true 
