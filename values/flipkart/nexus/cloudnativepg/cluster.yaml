@@ -17,8 +17,8 @@ spec:
 
   bootstrap:
     initdb:
-      database: appdb
-      owner: appuser
+      database: ckservicedb
+      owner: cknexus
       secret:
         name: postgres-secret
 
