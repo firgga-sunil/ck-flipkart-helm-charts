@@ -1,4 +1,21 @@
 ---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ck-postgres-sa
+  namespace: codekarma
+  annotations:
+    iam.gke.io/gcp-service-account: codekarma-dev-node-sa@ck-flipkart-pg.iam.gserviceaccount.com
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Backup
+metadata:
+  name: test-backup-before-delete
+  namespace: codekarma
+spec:
+  cluster:
+    name: ck-postgres
+---
 apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
@@ -8,7 +25,18 @@ spec:
   instances: 3
 
   imageName: ghcr.io/cloudnative-pg/postgresql:16.2
+  serviceAccountTemplate:
+    metadata:
+      annotations:
+        iam.gke.io/gcp-service-account: codekarma-dev-node-sa@ck-flipkart-pg.iam.gserviceaccount.com
 
+  backup:
+    barmanObjectStore:
+      destinationPath: "gs://ck-flipkart-pg-storage-bucket/backups"
+      # 2. Set gkeEnvironment to true
+      googleCredentials:
+        gkeEnvironment: true 
+      retentionPolicy: "30d"
   primaryUpdateStrategy: unsupervised
 
   storage:
