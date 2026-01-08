@@ -10,7 +10,7 @@ metadata:
 apiVersion: postgresql.cnpg.io/v1
 kind: Backup
 metadata:
-  name: test-backup-before-delete
+  name: test-backup
   namespace: codekarma
 spec:
   cluster:
@@ -29,7 +29,8 @@ spec:
     metadata:
       annotations:
         iam.gke.io/gcp-service-account: codekarma-dev-node-sa@ck-flipkart-pg.iam.gserviceaccount.com
-
+    spec:
+      serviceAccountName: ck-postgres-sa
   backup:
     barmanObjectStore:
       destinationPath: "gs://ck-flipkart-pg-storage-bucket/backups"
