@@ -1,0 +1,75 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ck-postgres-sa
+  namespace: codekarma
+  annotations:
+    iam.gke.io/gcp-service-account: codekarma-dev-node-sa@ck-flipkart-pg.iam.gserviceaccount.com
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Backup
+metadata:
+  name: test-backup
+  namespace: codekarma
+spec:
+  method: barmanObjectStore
+  cluster:
+    name: ck-postgres
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: ck-postgres
+  namespace: codekarma
+spec:
+  instances: 3
+
+  imageName: ghcr.io/cloudnative-pg/postgresql:16.2
+  serviceAccountTemplate:
+    metadata:
+      annotations:
+        iam.gke.io/gcp-service-account: codekarma-dev-node-sa@ck-flipkart-pg.iam.gserviceaccount.com
+    spec:
+      serviceAccountName: ck-postgres-sa
+  backup:
+    barmanObjectStore:
+      destinationPath: "gs://ck-flipkart-pg-storage-bucket/"
+      # 2. Set gkeEnvironment to true
+      googleCredentials:
+        gkeEnvironment: true 
+      retentionPolicy: "30d"
+  primaryUpdateStrategy: unsupervised
+
+  storage:
+    size: 20Gi
+    storageClass: standard
+
+  bootstrap:
+    initdb:
+      database: ckservicedb
+      owner: cknexus
+      secret:
+        name: postgres-secret
+
+  resources:
+    requests:
+      cpu: "500m"
+      memory: "1Gi"
+    limits:
+      cpu: "1"
+      memory: "2Gi"
+
+  monitoring:
+    enablePodMonitor: false
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: postgres-secret
+  namespace: codekarma
+type: kubernetes.io/basic-auth
+stringData:
+  username: cknexus
+  password: cknexus

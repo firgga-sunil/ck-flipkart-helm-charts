@@ -1,0 +1,49 @@
+apiVersion: acid.zalan.do/v1
+kind: postgresql
+metadata:
+  name: ck-postgres
+  namespace: codekarma
+
+spec:
+  enableLogicalBackup: true
+  teamId: flipkart
+  numberOfInstances: 2
+  # clone:
+    # cluster: ck-postgres
+    # enabled: true
+  # standby:
+  #   gs_wal_path: "gs://ck-flipkart-pg-storage-bucket/test/spilo/ck-postgres/f78ee929-9bbf-4ef0-a7b5-c9ffa8577e82/wal/15"
+    # uid: "f78ee929-9bbf-4ef0-a7b5-c9ffa8577e82"
+
+  # standby:
+  #   gs_wal_path: "gs://ck-flipkart-pg-storage-bucket//test/spilo/ck-postgres/4b1f7ece-f375-4718-9a3b-e89c73d2a4f3/wal/15"
+  imagePullSecrets:
+    - name: ckn-ghcr-secret
+  serviceAccountName: postgres-pod
+  postgresql:
+    version: "15"
+    parameters:
+      archive_timeout: "5min"
+    
+  volume:
+    size: 10Gi
+    storageClass: ckn-gcp-sc
+
+  users:
+    cknexus:
+      - superuser
+      - createdb
+
+  databases:
+    ckservicedb: cknexus
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: postgres-pod
+  namespace: codekarma
+  annotations:
+    iam.gke.io/gcp-service-account: codekarma-dev-node-sa@ck-flipkart-pg.iam.gserviceaccount.com
+imagePullSecrets:
+  - name: ckn-ghcr-secret
