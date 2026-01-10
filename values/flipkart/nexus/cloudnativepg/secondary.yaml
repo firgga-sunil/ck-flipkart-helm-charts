@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: ck-postgres
+  name: ck-postgres-sa
   namespace: codekarma
   annotations:
     iam.gke.io/gcp-service-account: codekarma-dev-node-sa@ck-flipkart-pg.iam.gserviceaccount.com
@@ -21,7 +21,7 @@ spec:
       annotations:
         iam.gke.io/gcp-service-account: codekarma-dev-node-sa@ck-flipkart-pg.iam.gserviceaccount.com
     spec:
-      serviceAccountName: ck-postgres
+      serviceAccountName: ck-postgres-sa
 
   storage:
     size: 20Gi
