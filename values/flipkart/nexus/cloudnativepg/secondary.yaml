@@ -4,7 +4,7 @@ metadata:
   name: ck-postgres-standby
   namespace: codekarma
 spec:
-  instances: 3
+  instances: 1
   imageName: ghcr.io/cloudnative-pg/postgresql:16.2
 
   # Use SAME behavior as primary (CNPG-managed SA)
