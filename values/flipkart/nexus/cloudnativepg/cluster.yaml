@@ -15,7 +15,7 @@ metadata:
 spec:
   method: barmanObjectStore
   cluster:
-    name: ck-postgres
+    name: ck-postgres-sa
 ---
 apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
