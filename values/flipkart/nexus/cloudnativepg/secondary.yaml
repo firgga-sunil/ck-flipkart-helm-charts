@@ -21,7 +21,7 @@ spec:
       annotations:
         iam.gke.io/gcp-service-account: codekarma-dev-node-sa@ck-flipkart-pg.iam.gserviceaccount.com
     spec:
-      serviceAccountName: ck-postgres-standby-sa
+      serviceAccountName: ck-postgres
 
   storage:
     size: 20Gi
