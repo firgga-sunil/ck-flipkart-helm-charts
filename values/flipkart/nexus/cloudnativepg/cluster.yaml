@@ -20,7 +20,7 @@ spec:
 apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
-  name: ck-postgres
+  name: ck-postgres-sa
   namespace: codekarma
 spec:
   instances: 3
