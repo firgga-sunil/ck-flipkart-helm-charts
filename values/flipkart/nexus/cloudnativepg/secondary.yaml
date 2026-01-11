@@ -7,7 +7,6 @@ spec:
   instances: 1
   imageName: ghcr.io/cloudnative-pg/postgresql:16.2
 
-  # Use SAME behavior as primary (CNPG-managed SA)
   serviceAccountTemplate:
     metadata:
       annotations:
@@ -15,11 +14,8 @@ spec:
 
   storage:
     size: 20Gi
-    storageClass: standard
+    storageClass: standard-rwo
 
-  replica:
-    enabled: true
-    source: ck-postgres
   resources:
     requests:
       cpu: "500m"
@@ -31,6 +27,13 @@ spec:
   monitoring:
     enablePodMonitor: false
 
+  backup:
+    barmanObjectStore:
+      destinationPath: "gs://ck-flipkart-pg-storage-bucket/codekarma/ck-postgres-standby"
+      googleCredentials:
+        gkeEnvironment: true 
+      retentionPolicy: "30d"
+
   externalClusters:
     - name: ck-postgres
       barmanObjectStore:
@@ -38,12 +41,8 @@ spec:
         googleCredentials:
           gkeEnvironment: true
 
-  backup:
-    barmanObjectStore:
-      destinationPath: "gs://ck-flipkart-pg-storage-bucket/codekarma/ck-postgres-standby"
-      googleCredentials:
-        gkeEnvironment: true 
-      retentionPolicy: "30d"
   bootstrap:
     recovery:
       source: ck-postgres
+      recoveryTarget:
+        targetImmediate: true  # Skip WAL replay until archiving is fixed
