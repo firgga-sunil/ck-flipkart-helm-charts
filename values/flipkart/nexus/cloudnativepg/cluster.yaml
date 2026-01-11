@@ -15,7 +15,7 @@ metadata:
 spec:
   method: barmanObjectStore
   cluster:
-    name: ck-postgres-sa
+    name: ck-postgres
 ---
 apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
@@ -30,8 +30,6 @@ spec:
     metadata:
       annotations:
         iam.gke.io/gcp-service-account: codekarma-dev-node-sa@ck-flipkart-pg.iam.gserviceaccount.com
-    spec:
-      serviceAccountName: ck-postgres-sa
   backup:
     barmanObjectStore:
       destinationPath: "gs://ck-flipkart-pg-storage-bucket/codekarma/ck-postgres"

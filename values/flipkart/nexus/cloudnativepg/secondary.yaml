@@ -1,40 +1,40 @@
-apiVersion: postgresql.cnpg.io/v1
-kind: Cluster
-metadata:
-  name: ck-postgres-standby
-  namespace: codekarma
-spec:
-  instances: 1
-  imageName: ghcr.io/cloudnative-pg/postgresql:16.2
+# apiVersion: postgresql.cnpg.io/v1
+# kind: Cluster
+# metadata:
+#   name: ck-postgres-standby
+#   namespace: codekarma
+# spec:
+#   instances: 1
+#   imageName: ghcr.io/cloudnative-pg/postgresql:16.2
 
-  # Use SAME behavior as primary (CNPG-managed SA)
-  serviceAccountTemplate:
-    metadata:
-      annotations:
-        iam.gke.io/gcp-service-account: codekarma-dev-node-sa@ck-flipkart-pg.iam.gserviceaccount.com
+#   # Use SAME behavior as primary (CNPG-managed SA)
+#   serviceAccountTemplate:
+#     metadata:
+#       annotations:
+#         iam.gke.io/gcp-service-account: codekarma-dev-node-sa@ck-flipkart-pg.iam.gserviceaccount.com
 
-  storage:
-    size: 20Gi
-    storageClass: standard
+#   storage:
+#     size: 20Gi
+#     storageClass: standard
 
-  resources:
-    requests:
-      cpu: "500m"
-      memory: "1Gi"
-    limits:
-      cpu: "1"
-      memory: "2Gi"
+#   resources:
+#     requests:
+#       cpu: "500m"
+#       memory: "1Gi"
+#     limits:
+#       cpu: "1"
+#       memory: "2Gi"
 
-  monitoring:
-    enablePodMonitor: false
+#   monitoring:
+#     enablePodMonitor: false
 
-  externalClusters:
-    - name: ck-postgres
-      barmanObjectStore:
-        destinationPath: gs://ck-flipkart-pg-storage-bucket/codekarma/ck-postgres
-        googleCredentials:
-          gkeEnvironment: true
+#   externalClusters:
+#     - name: ck-postgres
+#       barmanObjectStore:
+#         destinationPath: gs://ck-flipkart-pg-storage-bucket/codekarma/ck-postgres
+#         googleCredentials:
+#           gkeEnvironment: true
 
-  bootstrap:
-    recovery:
-      source: ck-postgres
+#   bootstrap:
+#     recovery:
+#       source: ck-postgres
