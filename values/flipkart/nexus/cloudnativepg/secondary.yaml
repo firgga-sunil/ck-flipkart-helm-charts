@@ -44,5 +44,3 @@ spec:
   bootstrap:
     recovery:
       source: ck-postgres
-      recoveryTarget:
-        targetImmediate: true  # Skip WAL replay until archiving is fixed
